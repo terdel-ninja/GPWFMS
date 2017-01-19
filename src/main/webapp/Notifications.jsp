@@ -114,6 +114,19 @@
 
 </head>
 <body>
+<form action="REST/users/notifications" method="post"
+		name="form_vul" id="form_vul">
+		<h1>
+	<span>Search Notifications</span>
+	</h1>
+		<div class = "form__item">
+							<label class="label form__label" >Search Notifications</label> 
+							<input class="form__input input" id="event"
+							Placeholder="Event Name"
+							name="event" size="30" type="text">
+							</div>
+		</form>
+		
 	<form enctype="multipart/form-data" action="Notifications.jsp"
 		method="post" name="form1" id="form1">
 		<div style="display: none;" id="UpdateProgress1">
@@ -299,5 +312,6 @@
 				</div>
 			</div>
 	</form>
+	
 </body>
 </html>

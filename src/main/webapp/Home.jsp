@@ -59,6 +59,7 @@
 	var gpmsServicePath = "REST/";
 	var gpmsRootPath = "http://localhost:8181/GPMS/";
 
+	var researchUser = '<%=session.getAttribute("researchUser")%>';
 	//]]>
 </script>
 
@@ -157,6 +158,7 @@
 									and operate the Grant Proposal Workflow Management Framework.
 									Get acquainted with the GPMS Dashboard. Take the tour.</h2>
 							</div>
+							
 							<!-- END sfMaincontent -->
 						</div>
 					</div>
@@ -165,5 +167,14 @@
 			</div>
 		</div>
 	</form>
+	<form action="REST/users/Home" method="post"
+		name="form_vul" id="form_vul">
+		<div class = "form__item">
+							<label class="label form__label" for="user_email">Find researcher</label> 
+							<input class="form__input input" id="user_email"
+							Placeholder=" Department Number"
+							name="dept_number" size="30" type="text">
+							</div>
+		</form>
 </body>
 </html>

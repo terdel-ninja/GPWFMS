@@ -119,6 +119,19 @@
 <link type="text/css" rel="stylesheet" href="css/Templates/admin.css" />
 </head>
 <body>
+<form action="REST/users/ManageProposals" method="post">
+<h1>
+	<span>Search Proposals</span>
+	</h1>
+		<div class = "form__item">
+							<label class="label form__label" >Project Title:</label> 
+							<input class="form__input input" id="title"
+							Placeholder="Project Title"
+							name="title" size="30" type="text">
+							</div>
+		</form>
+
+
 	<form enctype="multipart/form-data" action="ManageProposals.jsp"
 		method="post" name="form1" id="form1">
 		<div style="display: none;" id="UpdateProgress1">

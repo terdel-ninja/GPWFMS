@@ -125,7 +125,14 @@
 						value="vnrDLXnzx327b4Qv6bRa">
 					<div class="form__item">
 						<input class="required password form__input input"
+							id="user_name" name="username" size="30"
+							placeholder="username"
+							type="text">
+					</div>	
+					<div class="form__item">
+						<input class="required password form__input input"
 							id="user_password" name="user[password]" size="30"
+							placeholder="Current Password"
 							type="password">
 					</div>
 					<div class="form__item">

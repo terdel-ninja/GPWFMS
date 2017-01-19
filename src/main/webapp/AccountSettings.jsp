@@ -114,6 +114,39 @@
 <link type="text/css" rel="stylesheet" href="css/Templates/admin.css" />
 </head>
 <body>
+	<form accept-charset="UTF-8" action="REST/users/accountsetting"
+					class="form account__form" id="login-form" method="post">
+					<div style="margin: 0; padding: 0; display: inline">
+						<input name="utf8" type="hidden" value="✓"><input
+							name="_method" type="hidden" value="put"><input
+							name="authenticity_token" type="hidden"
+							value="RqYF4APwd8GkxD+TkOL+el1PqZNEiougvV5styEWKec=">
+					</div>
+					<input id="user_reset_password_token"
+						name="user[reset_password_token]" type="hidden"
+						value="vnrDLXnzx327b4Qv6bRa">
+					<div class="form__item">
+						<input class="required password form__input input"
+							id="user_name" name="username" size="30"
+							placeholder="username"
+							type="text">
+					</div>	
+					<div class="form__item">
+						<input class="required password form__input input"
+							id="user_password" name="user[password]" size="30"
+							placeholder="Current Password"
+							type="password">
+					</div>
+					<div class="form__item">
+						<input class="required password form__input input"
+							id="user_password_confirmation"
+							name="user[password_confirmation]"
+							placeholder="Confirm new password" size="30" type="password">
+					</div>
+					<input class="btn btn--large btn--expanded btn--blue" name="commit"
+						type="submit" value="Update Password">
+				</form>
+	
 	<form enctype="multipart/form-data" action="AccountSettings.jsp"
 		method="post" name="form1" id="form1">
 		<div style="display: none;" id="UpdateProgress1">
@@ -168,5 +201,6 @@
 				</div>
 			</div>
 	</form>
+	
 </body>
 </html>

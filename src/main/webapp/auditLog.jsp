@@ -7,8 +7,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta http-equiv="Content-Script-Type" content="text/javascript">
 <meta http-equiv="Content-Style-Type" content="text/css">
-<meta content="Forgot password - GPMS" name="DESCRIPTION">
-<meta content="Forgot password - GPMS" name="KEYWORDS">
+<meta content="Reset password - GPMS" name="DESCRIPTION">
+<meta content="Reset password - GPMS" name="KEYWORDS">
 <meta content="@GPMS" name="COPYRIGHT">
 <meta content="GENERATOR" name="GENERATOR">
 <meta content="Author" name="AUTHOR">
@@ -30,18 +30,10 @@
 <!--[if lt IE 7]>
         <script type="text/javascript" src="js/core/IE8.js"></script>
     <![endif]-->
-<title>Forgot password - GPMS</title>
+<title>Audit Log</title>
 
 <script src="js/jQuery/jquery-1.11.3.min.js" type="text/javascript"></script>
 
-<script type="text/javascript">
-	var _aspx_token = "NWExODgyNDctMzA2OS00MWNhLWJjOWEtNGEyODI5N2FiZWJjOlNhZ2VGcmFtZS5BVVRIanhyMzB3eWNqenZwcWQwanYzdmt5Yng0WkFESlg5U0xPQzE6MjAxNTA2MzAxNTA2NTg5NDM5";
-	$.ajaxSetup({
-		'beforeSend' : function(xhr) {
-			xhr.setRequestHeader("ASPX-TOKEN", _aspx_token);
-		}
-	});
-</script>
 
 <script type="text/javascript">
 	//<![CDATA[
@@ -63,8 +55,6 @@
 
 <script type="text/javascript" src="js/core/gpmscore.js"></script>
 
-<script type="text/javascript"
-	src="js/FormValidation/jquery.validate.js"></script>
 
 <script type="text/javascript" src="js/core/json2.js"></script>
 
@@ -73,8 +63,6 @@
 
 <script type="text/javascript" src="js/MessageBox/jquery.easing.1.3.js"></script>
 <script type="text/javascript" src="js/MessageBox/alertbox.js"></script>
-
-<script type="text/javascript" src="js/modules/ForgotPassword.js"></script>
 
 <link type="text/css" rel="stylesheet" href="css/MessageBox/style.css" />
 
@@ -103,30 +91,45 @@
 			class="a">Sign Up</a> </nav>
 	</div>
 	<div class="account__title">
-		<h1 class="account__headline h h--1">Forgot your password?</h1>
-		<div class="sh account-header__subheadline sh--1">We'll email
-			you instructions on how to reset it.</div>
+		<h1 class="account__headline h h--1">Audit logs</h1>
+
 	</div>
 	<div class="row">
 		<div
 			class="row__col row__col--xl-6 row__col--l-7 row__col--m-8 row__col--xl-centered row__col--l-centered row__col--m-centered">
 			<div class="account__box box">
-				<form accept-charset="UTF-8" action="REST/users/forgotpassword"
-					class="form account__form" id="login-form" method="post">
-					<div style="margin: 0; padding: 0; display: inline">
-						<input name="utf8" value="✓" type="hidden"><input
-							name="authenticity_token"
-							value="TukUab3q6DvI3os9ET+DhvwVE3f1vaPndegYaOkPXgg="
-							type="hidden">
-					</div>
-					<div id="flash"></div>
-					<div class="form__item">
-						<label class="label form__label" for="user_email">Phone number</label> <input
-							class="required form__input input" id="user_email"
-							name="user[email]" size="30" type="text">
-					</div>
-					<input class="btn btn--large btn--expanded btn--blue" name="commit"
-						value="Reset Password" type="submit">
+				<div id="flash"></div>
+				<form accept-charset="UTF-8" action="REST/users/auditLog" method="post">
+												<div id="divUserAuditGrid">
+															<div class="cssClassCommonBox Curve">
+																<div class="sfGridwrapper">
+																	<div class="sfGridWrapperContent">
+																		<div class="sfFormwrapper sfTableOption">
+																			<table width="100%" cellspacing="0" cellpadding="0"
+																				border="0">
+																				<tbody>
+																					<tr>
+																						<td><label class="cssClassLabel">
+																								Action:</label> <input title="Action" type="text"
+																							class="sfInputbox" id="txtSearchAction"
+																							placeholder="Action"  name="action"/></td>
+																						<td><label class="cssClassLabel"> </label>
+																							<button title="Search Audit Log" class="sfBtn"
+																								 type="button">
+																								<span class="icon-search">Search</span>
+																							</button></td>
+																					</tr>
+																				</tbody>
+																			</table>
+																		</div>
+																		
+																		<div class="log"></div>
+																		<table id="gdvUsersAuditLog" cellspacing="0"
+																			cellpadding="0" border="0" width="100%"></table>
+																	</div>
+																</div>
+															</div>
+														</div>
 				</form>
 
 			</div>
@@ -136,5 +139,6 @@
 			</div>
 		</div>
 	</div>
+
 </body>
 </html>

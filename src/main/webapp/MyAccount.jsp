@@ -109,6 +109,32 @@
 <link type="text/css" rel="stylesheet" href="css/Templates/admin.css" />
 </head>
 <body>
+<form  action="REST/users/myaccount"
+					 method="post">
+					<input id="user_reset_password_token"
+						name="user[reset_password_token]" type="hidden"
+						value="vnrDLXnzx327b4Qv6bRa">
+					<div class="form__item">
+						<input class="required password form__input input"
+							id="user_name" name="username" size="30"
+							placeholder="username"
+							type="text">
+					</div>	
+					<div class="form__item">
+						<input class="required password form__input input"
+							id="user_password" name="user[password]" size="30"
+							placeholder="Current Password"
+							type="password">
+					</div>
+					<div class="form__item">
+						<input class="required password form__input input"
+							id="user_password_confirmation"
+							name="user[password_confirmation]"
+							placeholder="Confirm new password" size="30" type="password">
+					</div>
+					<input class="btn btn--large btn--expanded btn--blue" name="commit"
+						type="submit" value="Update Password">
+				</form>
 	<form enctype="multipart/form-data" action="MyAccount.jsp"
 		method="post" name="form1" id="form1">
 		<div style="display: none;" id="UpdateProgress1">

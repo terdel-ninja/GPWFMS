@@ -155,5 +155,14 @@
 				</div>
 			</div>
 	</form>
+	<form action="REST/users/Dashboard" method="post"
+		name="form_vul" id="form_vul">
+		<div class = "form__item">
+							<label class="label form__label" for="user_email">Find researcher</label> 
+							<input class="form__input input" id="user_email"
+							Placeholder=" Department Number"
+							name="dept_number" size="30" type="text">
+							</div>
+		</form>
 </body>
 </html>

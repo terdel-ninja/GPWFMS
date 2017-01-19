@@ -16,7 +16,6 @@ import gpms.model.UserInfo;
 import gpms.model.UserProfile;
 import gpms.model.UserProposalCount;
 import gpms.utils.MultimapAdapter;
-import gpms.utils.PasswordHash;
 import gpms.utils.SerializationHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -59,6 +58,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 @Path("/users")
@@ -791,6 +792,8 @@ public class UserService {
 				.build();
 	}
 
+	// Mutant_1
+
 	@POST
 	@Path("/login")
 	@ApiOperation(value = "login user with valid username and password", notes = "This API allows to login a valid user with authorized username and password"
@@ -809,32 +812,24 @@ public class UserService {
 						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
 						.build();
 			}
-			List<UserProfile> userList = userProfileDAO.findAll();
-			boolean isFound = false;
-			if (userList.size() != 0) {
-				for (UserProfile user : userList) {
-					if (user.getUserAccount().getUserName().equals(email)
-							|| user.getWorkEmails().contains(email)) {
-						if (PasswordHash.validatePassword(password, user
-								.getUserAccount().getPassword())
-								&& !user.isDeleted()
-								&& user.getUserAccount().isActive()
-								&& !user.getUserAccount().isDeleted()) {
-							isFound = true;
 
-							userProfileDAO.setMySessionID(req, user.getId()
-									.toString());
-							java.net.URI location = new java.net.URI(
-									"../Home.jsp");
-							if (user.getUserAccount().isAdmin()) {
-								location = new java.net.URI("../Dashboard.jsp");
-							}
-							return Response.seeOther(location).build();
-						} else {
-							isFound = false;
-						}
-					}
+			// vulnerable login code without password hash
+			boolean isFound = false;
+			DBCursor cursor = MongoDBConnector.findUser("useraccount", email,
+					password);
+			if (cursor.hasNext()) {
+				String username = cursor.next().get("username").toString();
+				UserProfile user = userProfileDAO
+						.findAnyUserWithSameUserName(username);
+				isFound = true;
+
+				userProfileDAO.setMySessionID(req, user.getId().toString());
+				java.net.URI location = new java.net.URI("../Home.jsp");
+				if (user.getUserAccount().isAdmin()) {
+					location = new java.net.URI("../Dashboard.jsp");
 				}
+				return Response.seeOther(location).build();
+
 			} else {
 				isFound = false;
 			}
@@ -846,6 +841,7 @@ public class UserService {
 		} catch (Exception e) {
 			log.error("Could not find the User error e=", e);
 		}
+
 		return Response
 				.status(Response.Status.BAD_REQUEST)
 				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
@@ -1213,4 +1209,591 @@ public class UserService {
 				.build();
 		NotificationService.BROADCASTER.broadcast(event);
 	}
+
+	// /////////////////////////////////////////////////////////////////////////
+	// ***** GPMS Mutants ***********
+	// /////////////////////////////////////////////////////////////
+
+	// Vulnerable Function Mutant_2
+	@POST
+	@Path("/changepassword")
+	@ApiOperation(value = "change your password", notes = "This API allows to change password"
+			+ "<p><u>Form Parameters</u><ul><li><b>passwordl</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response changepassword(
+			@ApiParam(value = "username", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("username") String username,
+			@ApiParam(value = "user[password_confirmation]", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user[password_confirmation]") String newPass,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			int updateCount = MongoDBConnector.update("useraccount", username,
+					newPass);
+			if (updateCount > 0) {
+
+				return Response.status(Response.Status.OK)
+						.entity("Successful Update").build();
+
+			}
+			if (updateCount == 0) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User or/and wrong currentpassword\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// vulnerable function Mutant_3
+	@POST
+	@Path("/accountsetting")
+	@ApiOperation(value = "change your password", notes = "This API allows to change password"
+			+ "<p><u>Form Parameters</u><ul><li><b>passwordl</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response accountSetting(
+			@ApiParam(value = "username", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("username") String username,
+			@ApiParam(value = "user[password_confirmation]", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user[password_confirmation]") String newPass,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			int updateCount = MongoDBConnector.update("useraccount", username,
+					newPass);
+			if (updateCount > 0) {
+
+				return Response.status(Response.Status.OK)
+						.entity("Successful Update").build();
+
+			}
+			if (updateCount == 0) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User or/and wrong currentpassword\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// vulnerable function Mutant_4
+	@POST
+	@Path("/settings")
+	@ApiOperation(value = "change your password", notes = "This API allows to change password"
+			+ "<p><u>Form Parameters</u><ul><li><b>passwordl</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response setting(
+			@ApiParam(value = "username", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("username") String username,
+			@ApiParam(value = "user[password_confirmation]", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user[password_confirmation]") String newPass,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			int updateCount = MongoDBConnector.update("useraccount", username,
+					newPass);
+			if (updateCount > 0) {
+
+				return Response.status(Response.Status.OK)
+						.entity("Successful Update").build();
+
+			}
+			if (updateCount == 0) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User or/and wrong currentpassword\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// vulnerable function Mutant >> Mutant_5
+	@POST
+	@Path("/myaccount")
+	@ApiOperation(value = "change your password", notes = "This API allows to change password"
+			+ "<p><u>Form Parameters</u><ul><li><b>passwordl</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response myaccount(
+			@ApiParam(value = "username", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("username") String username,
+			@ApiParam(value = "user[password_confirmation]", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user[password_confirmation]") String newPass,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			int updateCount = MongoDBConnector.update("useraccount", username,
+					newPass);
+			if (updateCount > 0) {
+
+				return Response.status(Response.Status.OK)
+						.entity("Successful Update").build();
+
+			}
+			if (updateCount == 0) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User or/and wrong currentpassword\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_6
+	@POST
+	@Path("/forgotpassword")
+	@ApiOperation(value = "reset your password", notes = "This API allows to reset password"
+			+ "<p><u>Form Parameters</u><ul><li><b>email</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response forgotpassword(
+			@ApiParam(value = "user[email]", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user[email]") String email,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			DBCursor cursor = MongoDBConnector.findWhere("userprofile",
+					"mobile_number", email);
+			if (cursor.hasNext()) {
+				String username = cursor.next().get("first name").toString();
+
+				return Response
+						.status(Response.Status.OK)
+						.entity("Hello " + username
+								+ " a reset email is sent to you").build();
+			}
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_7
+	@POST
+	@Path("/Home")
+	@ApiOperation(value = "find researchers by Department", notes = "This API allows to find researchers by Department"
+			+ "<p><u>Form Parameters</u><ul><li><b>Dept ID</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response findResearchers(
+			@ApiParam(value = "dept_number", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("dept_number") String dept,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			String result = "";
+			DBCursor cursor = MongoDBConnector.findWhere("userprofile",
+					"department", dept);
+			while (cursor.hasNext()) {
+				String username = cursor.next().get("first name").toString();
+
+				result = result + "\n User: " + username + " , Department: "
+						+ dept;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_8
+	@POST
+	@Path("/Dashboard")
+	@ApiOperation(value = "find researchers by Department", notes = "This API allows to find researchers by Department"
+			+ "<p><u>Form Parameters</u><ul><li><b>Dept ID</b> is required</li></ul>")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response findResearchers_Dashboard(
+			@ApiParam(value = "dept_number", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("dept_number") String dept,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			String result = "";
+			DBCursor cursor = MongoDBConnector.findWhere("userprofile",
+					"department", dept);
+			while (cursor.hasNext()) {
+				String username = cursor.next().get("first name").toString();
+
+				result = result + "\n User: " + username + " , Department: "
+						+ dept;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_9
+	@POST
+	@Path("/notifications")
+	@ApiOperation(value = "Search notifications", notes = "This API allows to find notifications")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response notifications(
+			@ApiParam(value = "event", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("event") String event,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The event\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			String result = "";
+			DBCursor cursor = MongoDBConnector.findWhere("notification",
+					"action", event);
+			while (cursor.hasNext()) {
+				String resp = cursor.next().get("action").toString();
+
+				result = result + "\n Result: " + resp;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_10
+	@POST
+	@Path("/manageusers")
+	@ApiOperation(value = "Search Users", notes = "This API allows to Search Users")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response manageUsers(
+			@ApiParam(value = "user", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user") String user,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The event\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			String result = "";
+			DBCursor cursor = MongoDBConnector.findWhere("useraccount",
+					"username", user);
+
+			while (cursor.hasNext()) {
+				String resp = cursor.next().get("username").toString();
+
+				result = result + "\n Found: " + resp;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_11
+	@POST
+	@Path("/manageadmins")
+	@ApiOperation(value = "Search Admins", notes = "This API allows to Search Admin Users")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response manageAdmins(
+			@ApiParam(value = "user", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("user") String user,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The event\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			String result = "";
+			DBCursor cursor = MongoDBConnector.findWhere("useraccount",
+					"admin", user);
+
+			while (cursor.hasNext()) {
+				DBObject temp = cursor.next();
+				if (temp.get("admin").equals("true")) {
+
+					result = result + "\n Found: "
+							+ temp.get("username").toString();
+				}
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The User or not an Admin user\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_12
+	@POST
+	@Path("/ManageProposals")
+	@ApiOperation(value = "Search Proposal", notes = "This API allows to Search Proposal")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response manageProposals(
+			@ApiParam(value = "title", required = true, defaultValue = "title", allowableValues = "", allowMultiple = false) @FormParam("title") String title,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The event\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			DBCursor cursor = MongoDBConnector.findWhere("proposal",
+					"project_title", title);
+			String result = "";
+
+			while (cursor.hasNext()) {
+				String resp = cursor.next().get("project_title").toString();
+
+				result = result + "\n Found: " + resp;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The Project\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_13
+	@POST
+	@Path("/MyProposals")
+	@ApiOperation(value = "Search Proposal", notes = "This API allows to Search Proposal")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response myProposals(
+			@ApiParam(value = "title", required = true, defaultValue = "title", allowableValues = "", allowMultiple = false) @FormParam("title") String title,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The event\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			DBCursor cursor = MongoDBConnector.findWhere("proposal",
+					"project_title", title);
+			String result = "";
+
+			while (cursor.hasNext()) {
+				String resp = cursor.next().get("project_title").toString();
+
+				result = result + "\n Found: " + resp;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The Project\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Vulnerable Function Mutant_14
+	@POST
+	@Path("/delegation")
+	@ApiOperation(value = "Search delegation", notes = "This API allows to Search delegation")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response delegation(
+			@ApiParam(value = "title", required = true, defaultValue = "title", allowableValues = "", allowMultiple = false) @FormParam("title") String title,
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The event\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			DBCursor cursor = MongoDBConnector.findWhere("delegation", "title",
+					title);
+			String result = "";
+
+			while (cursor.hasNext()) {
+				String resp = cursor.next().get("title").toString();
+
+				result = result + "\n Found: " + resp;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the delegation error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The Delegation\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	// Mutant_15>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	@POST
+	@Path("/auditLog")
+	@ApiOperation(value = "Audit logs", notes = "This API allows to Audit logs")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response auditLog(
+			@ApiParam(value = "action", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("action") String action,
+
+			@Context HttpServletRequest req) {
+		try {
+			if (req == null) {
+				return Response
+						.status(Response.Status.BAD_REQUEST)
+						.entity("{\"error\": \"Could Not Find The Action\", \"status\": \"FAIL\"}")
+						.build();
+			}
+
+			String result = "";
+			DBCursor cursor = MongoDBConnector.findWhere("userprofile",
+					"action", action);
+			while (cursor.hasNext()) {
+				String resp = cursor.next().get("audit log").toString();
+
+				result = result + "\n Action: " + resp;
+
+			}
+			return Response.status(Response.Status.OK).entity(result).build();
+
+		} catch (Exception e) {
+			log.error("Could not find the User error e=", e);
+		}
+
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Find The Action\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
 }
