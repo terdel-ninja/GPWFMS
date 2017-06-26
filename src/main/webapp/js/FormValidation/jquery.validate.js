@@ -455,6 +455,8 @@
 									required : "This field is required.",
 									remote : "Please fix this field.",
 									email : "Please enter a valid email address.",
+									noSpace : "Field cannot contain spaces.",
+									noSpecial: "Field cannot contain special characters.",
 									url : "Please enter a valid URL.",
 									date : "Please enter a valid date.",
 									dateISO : "Please enter a valid date ( ISO ).",
@@ -1335,6 +1337,12 @@
 									email : {
 										email : true
 									},
+									noSpace : {
+										noSpace: true
+									},
+									noSpecial: {
+										noSpecial: true
+									},
 									url : {
 										url : true
 									},
@@ -1655,6 +1663,24 @@
 										return this.optional(element)
 												|| /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 														.test(value);
+									},
+									
+									//Author: Patrick Chapman
+									//Adding validator method to prevent user from using spaces
+									noSpace: function(value, element) { 
+									     return value.indexOf(" ") < 0 && value != ""; 
+									},
+									
+									//Author: Patrick Chapman
+									//Allows no special characters, primarily characters that
+									//can be used for XSS attack.
+									noSpecial: function(value, element){
+									    return !(value.includes("<")
+									    || value.includes(">")
+									    || value.includes("&")
+									    || value.includes('"')
+									    || value.includes("'")
+									    || value.includes("/"));
 									},
 
 									// http://jqueryvalidation.org/url-method/

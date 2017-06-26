@@ -8,19 +8,24 @@ $(function() {
 	jQuery.fn.exists = function() {
 		return this.length > 0;
 	}
-
+	
 	var validator = $("#form1")
 			.validate(
 					{
+						ignore: ".ignore",
 						rules : {
 							username : {
 								required : true,
-								minlength : 3
+								minlength : 3,
+								maxlength:20,
+								noSpace: true,
+								noSpecial: true
 							},
 							password : {
 								required : true,
 								minlength : 6,
-								maxlength : 15
+								maxlength : 15,
+								noSpace: true
 							},
 							confirm_password : {
 								required : true,
@@ -34,11 +39,13 @@ $(function() {
 							},
 							firstName : {
 								required : true,
-								maxlength : 40
+								maxlength : 40,
+								noSpecial: true
 							},
 							lastName : {
 								required : true,
-								maxlength : 40
+								maxlength : 40,
+								noSpecial: true
 							},
 							dob : {
 								required : true,
@@ -49,34 +56,42 @@ $(function() {
 							},
 							street : {
 								required : true,
-								minlength : 3
+								minlength : 3,
+								noSpecial: true
 							},
 							city : {
-								required : true
+								required : true,
+								noSpecial: true
 							},
 							state : {
-								required : true
+								required : true,
+								noSpecial: true
 							},
 							zip : {
 								required : true
 							},
 							country : {
-								required : true
+								required : true,
+								noSpecial: true
 							},
 							mobileNumber : {
 								required : true
-							},
+							}
 						},
 						errorElement : "label",
 						messages : {
 							username : {
 								required : "Please enter a username",
-								minlength : "Your username must be at least 3 characters long"
+								minlength : "Your username must be between 3 and 20 characters",
+								maxlength : "Your username must be between 3 and 20 characters",
+								noSpace : "Username cannot contain spaces",
+								noSpecial: "Username cannot contain special characters"
 							},
 							password : {
 								required : "Please provide a password",
 								minlength : "Your password must be between 6 and 15 characters",
-								maxlength : "Your password must be between 6 and 15 characters"
+								maxlength : "Your password must be between 6 and 15 characters",
+								noSpace : "Password cannot contain spaces"
 							},
 							confirm_password : {
 								required : "Please confirm your password",
@@ -90,11 +105,13 @@ $(function() {
 							},
 							firstName : {
 								required : "Please enter your firstname",
-								maxlength : "Your firstname must be at most 40 characters long"
+								maxlength : "Your firstname must be at most 40 characters long",
+								noSpecial: "First name cannot contain special characters"
 							},
 							lastName : {
 								required : "Please enter your lastname",
-								maxlength : "Your lastname must be at most 40 characters long"
+								maxlength : "Your lastname must be at most 40 characters long",
+								noSpecial: "Last name cannot contain special characters"
 							},
 							dob : {
 								required : "Please enter your date of birth",
@@ -105,19 +122,23 @@ $(function() {
 							},
 							street : {
 								required : "Please enter your street address",
-								minlength : "Please enter valid your street address"
+								minlength : "Please enter valid your street address",
+								noSpecial: "Street cannot contain special characters"
 							},
 							city : {
-								required : "Please enter your city"
+								required : "Please enter your city",
+								noSpecial: "City cannot contain special characters"
 							},
 							state : {
-								required : "Please select your city"
+								required : "Please select your city",
+								noSpecial: "Street cannot contain special characters"
 							},
 							zip : {
 								required : "Please enter your zip code"
 							},
 							country : {
-								required : "Please select your country"
+								required : "Please select your country",
+								noSpecial: "Country cannot contain special characters"
 							},
 							mobileNumber : {
 								required : "Please enter your mobile phone number"
@@ -169,11 +190,14 @@ $(function() {
 
 		checkUniqueUserName : function(user_id, userName, textBoxUserName) {
 			var errors = '';
+			
+			
+			
 			if (!textBoxUserName.hasClass('error') && userName.length > 0) {
 				if (!signUp.isUniqueUserName(user_id, userName)) {
 					errors += 'Please enter unique username.' + " '"
-							+ userName.trim() + "' "
-							+ 'has already been taken.';
+					+ userName.trim()+ "' "
+					+ 'has already been taken.';
 					textBoxUserName.addClass("error");
 					textBoxUserName.siblings('.cssClassRight').hide();
 					if (textBoxUserName.siblings('label.error').exists()) {
@@ -265,14 +289,26 @@ $(function() {
 				var user_id = "0";
 				var validateErrorMessage = signUp.checkUniqueUserName(user_id,
 						userName, $username);
-
+				//Author: Patrick Chapman
+				//Validates captcha on sign-up page
+				//Date: 4/15/17
+				var gresponse = grecaptcha.getResponse();
+				console.log(gresponse);
+				if(gresponse.length == 0){
+					validateErrorMessage = "Captcha not validated.";
+					document.getElementById('captcha').innerHTML="Please use captcha.";
+				}else{
+					document.getElementById('captcha').innerHTML="";
+				}
+				//End of Patrick Code
+			
 				if (validateErrorMessage == "") {
 					var $workEmail = $("#txtWorkEmail");
 					var workEmail = $.trim($workEmail.val());
 					validateErrorMessage += signUp.checkUniqueEmailAddress(
 							user_id, workEmail, "txtWorkEmail");
 				}
-
+			
 				if (validateErrorMessage == "") {
 					var userInfo = {
 						UserID : user_id,
@@ -290,9 +326,11 @@ $(function() {
 						State : $('#ddlState :selected').text(),
 						Zip : $.trim($('#txtZip').val()),
 						Country : $('#ddlCountry :selected').text(),
-						MobileNumber : $('#txtMobileNumber').mask()
+						MobileNumber : $('#txtMobileNumber').mask(),
+						Recaptcha: gresponse
 					};
 					signUp.AddUserInfo(userInfo);
+				
 				} else {
 					return false;
 				}

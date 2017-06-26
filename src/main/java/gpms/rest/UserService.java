@@ -18,6 +18,8 @@ import gpms.model.UserProposalCount;
 import gpms.utils.MultimapAdapter;
 import gpms.utils.PasswordHash;
 import gpms.utils.SerializationHelper;
+import gpms.utils.UserInputValidator;
+import gpms.utils.VerifyRecaptcha;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -79,6 +81,12 @@ public class UserService {
 	private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final Logger log = Logger.getLogger(UserService.class
 			.getName());
+	private final int MAX_USERNAME_LENGTH = 30;
+	private final int MAX_NAME_LENGTH = 40;
+	private final int MAX_ADDR_LENGTH = 100;
+	private final int MAX_CITY_LENGTH = 40;
+	private final int MAX_STATE_LENGTH = 40;
+	private final int MAX_COUNTRY_LENGTH = 40;
 
 	public UserService() {
 		mongoClient = MongoDBConnector.getMongo();
@@ -678,6 +686,7 @@ public class UserService {
 				response = mapper.writerWithDefaultPrettyPrinter()
 						.writeValueAsString("true");
 			}
+
 			return Response.status(Response.Status.OK).entity(response).build();
 		} catch (Exception e) {
 			log.error("Could not check for unique Username error e=", e);
@@ -755,6 +764,36 @@ public class UserService {
 			JsonNode root = mapper.readTree(message);
 			if (root != null && root.has("userInfo")) {
 				JsonNode userInfo = root.get("userInfo");
+				
+				//Author: Patrick Chapman
+				//User input validation
+				UserInputValidator inputValidator = new UserInputValidator();
+				
+				//This is kind of copy-paste, but might have to do
+				//for now.
+				
+				//validate user name
+				inputValidator.validateInput(userInfo.get("UserName").textValue(), MAX_USERNAME_LENGTH);
+				//validate first name
+				inputValidator.validateInput(userInfo.get("FirstName").textValue(), MAX_NAME_LENGTH);
+				//validate last name
+				inputValidator.validateInput(userInfo.get("LastName").textValue(), MAX_NAME_LENGTH);
+				//validate  address
+				inputValidator.validateInput(userInfo.get("Street").textValue(), MAX_ADDR_LENGTH);
+				//validate user city
+				inputValidator.validateInput(userInfo.get("City").textValue(), MAX_CITY_LENGTH);
+				//validate user state
+				inputValidator.validateInput(userInfo.get("State").textValue(), MAX_STATE_LENGTH);
+				//validate user country
+				inputValidator.validateInput(userInfo.get("Country").textValue(), MAX_COUNTRY_LENGTH);
+			
+				//Back-end verification for recaptcha response
+				String gRecaptchaResponse = userInfo.get("Recaptcha").textValue();
+				if(!VerifyRecaptcha.verify(gRecaptchaResponse)){
+					throw new Exception("Captcha did not verify correctly.");
+				}
+				//End of Patrick Code
+				
 				if (userInfo != null && userInfo.has("UserID")) {
 					userID = userInfo.get("UserID").textValue();
 				}
@@ -983,6 +1022,7 @@ public class UserService {
 			@ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
 		try {
 			log.info("UserService::getCurrentPositionDetailsForPI started");
+			System.out.println("mess: " + message);
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode root = mapper.readTree(message);
 			GPMSCommonInfo userInfo = new GPMSCommonInfo();

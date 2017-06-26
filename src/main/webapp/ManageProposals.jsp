@@ -993,7 +993,7 @@
 													</table>
 
 													<table cellspacing="0" cellpadding="0" border="0"
-														id="trSignPICOPI">
+														id="trSignPICOPI" name = "signPICOPI">
 														<thead>
 															<tr>
 																<th class="cssClassSignName"><span class="cssClassLabelTitle">Principal/Co-Investigator(s)</span></th>

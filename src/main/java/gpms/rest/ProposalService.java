@@ -26,6 +26,7 @@ import gpms.model.UserAccount;
 import gpms.model.UserProfile;
 import gpms.utils.EmailUtil;
 import gpms.utils.SerializationHelper;
+import gpms.utils.UserInputValidator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -88,6 +89,10 @@ public class ProposalService {
 	public DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final Logger log = Logger.getLogger(ProposalService.class
 			.getName());
+	private final int MAX_NUM_SIGN_CH = 45;
+	private final int MAX_NUM_NOTE_CH = 180;
+	private final int MAX_NUM_TITLE_CH = 45;
+	private final int MAX_SIG_INFO_LENGTH = 7;
 
 	public ProposalService() {
 		mongoClient = MongoDBConnector.getMongo();
@@ -578,6 +583,7 @@ public class ProposalService {
 			}
 			if (root != null && root.has("proposalRoles")) {
 				proposalRoles = root.get("proposalRoles").textValue();
+				System.out.println("prop rules: " + proposalRoles);
 			}
 			GPMSCommonInfo userInfo = new GPMSCommonInfo();
 			if (root != null && root.has("gpmsCommonObj")) {
@@ -817,6 +823,7 @@ public class ProposalService {
 			Boolean irbApprovalRequired = false;
 			ObjectMapper mapper = new ObjectMapper();
 			JsonNode root = mapper.readTree(message);
+			
 			if (root != null && root.has("proposalId")) {
 				proposalId = root.get("proposalId").textValue();
 			}
@@ -827,6 +834,7 @@ public class ProposalService {
 			ObjectId id = new ObjectId(proposalId);
 			List<SignatureInfo> signatures = proposalDAO
 					.getSignaturesOfAProposal(id, irbApprovalRequired);
+	
 			return Response
 					.status(Response.Status.OK)
 					.entity(mapper.writerWithDefaultPrettyPrinter()
@@ -881,6 +889,7 @@ public class ProposalService {
 					List<SignatureUserInfo> signatures = proposalDAO
 							.findAllUsersToBeNotified(id,
 									existingProposal.isIrbApprovalRequired());
+			
 					ObjectId authorId = new ObjectId(
 							userInfo.getUserProfileID());
 					UserProfile authorProfile = userProfileDAO
@@ -1048,6 +1057,7 @@ public class ProposalService {
 			@ApiResponse(code = 403, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
 	public Response saveUpdateProposal(
 			@ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+		String errMessage = "";
 		try {
 			log.info("ProposalService::saveUpdateProposal started");
 			ObjectMapper mapper = new ObjectMapper();
@@ -1060,6 +1070,10 @@ public class ProposalService {
 			ObjectId authorId = new ObjectId(userInfo.getUserProfileID());
 			UserProfile authorProfile = userProfileDAO
 					.findUserDetailsByProfileID(authorId);
+			System.out.println("dets: " + authorProfile.getDetails());
+			
+			
+			
 			String proposalId = new String();
 			Proposal existingProposal = new Proposal();
 			Proposal oldProposal = new Proposal();
@@ -1067,6 +1081,39 @@ public class ProposalService {
 			BalanaConnector ac = new BalanaConnector();
 			if (root != null && root.has("proposalInfo")) {
 				JsonNode proposalInfo = root.get("proposalInfo");
+				//Author: Patrick Chapman
+				//Validates signature fields to prevent
+				//XSS attacks and authorized signature
+				//fields.
+				//Update: 4/10/17
+				UserInputValidator inputValidator = new UserInputValidator();
+				
+				//grabs current user's signature information, project title,
+				//and granting agency
+				ArrayList<String> userSigInfo = new ArrayList<String>
+										(Arrays.asList(proposalInfo
+										.get("SignatureInfo").textValue().split("!#!")));
+				//if(userSigInfo.size() > MAX_SIG_INFO_LENGTH){
+				//	throw new Exception("Signature information has been illegally tampered with!");
+				//}
+				System.out.println("sigs: " + userSigInfo.toString());
+				String projectTitleInfo = proposalInfo.get("ProjectInfo").get("ProjectTitle").textValue();
+				String sponsorInfo = proposalInfo
+										.get("SponsorAndBudgetInfo").get("GrantingAgency").textValue();
+				
+				//Currently cannot just cycle through every piece of information considering that the
+				//types of input needs to be different for separate sections.
+				
+				//validates signature field
+				inputValidator.validateInput(userSigInfo.get(1), MAX_NUM_SIGN_CH);
+				//validates signature note field
+				inputValidator.validateInput(userSigInfo.get(3), MAX_NUM_NOTE_CH);
+				//validate project title
+				inputValidator.validateInput(projectTitleInfo, MAX_NUM_TITLE_CH);
+				//validate sponsor name
+				inputValidator.validateInput(sponsorInfo, MAX_NUM_NOTE_CH);
+				//End of Patrick Code
+				
 				if (proposalInfo != null && proposalInfo.has("ProposalID")) {
 					proposalId = proposalInfo.get("ProposalID").textValue();
 					if (!proposalId.equals("0")) {
@@ -1077,6 +1124,7 @@ public class ProposalService {
 								.cloneThroughSerialize(existingProposal);
 					}
 				}
+				
 				proposalDAO.getAppendixDetails(proposalId, existingProposal,
 						oldProposal, proposalInfo);
 				getInvestigatorInfoDetails(proposalId, existingProposal,
@@ -1113,13 +1161,17 @@ public class ProposalService {
 										proposalId, existingProposal,
 										signedByCurrentUser, contentProfile,
 										irbApprovalRequired, requiredSignatures);
+
+						
 						Set<AbstractResult> set = ac
 								.getXACMLdecisionWithObligations(attrMap,
 										contentProfile);
+						System.out.println("ac: " + ac.getXACMLdecision(attrMap));
 						Iterator<AbstractResult> it = set.iterator();
 						int intDecision = AbstractResult.DECISION_NOT_APPLICABLE;
 						while (it.hasNext()) {
 							AbstractResult ar = it.next();
+							System.out.println("ar: " + ar.toString());
 							intDecision = ar.getDecision();
 							if (intDecision == AbstractResult.DECISION_INDETERMINATE_DENY
 									|| intDecision == AbstractResult.DECISION_INDETERMINATE_PERMIT
@@ -1133,6 +1185,7 @@ public class ProposalService {
 									.equals("Permit")) {
 								List<ObligationResult> obligations = ar
 										.getObligations();
+								System.out.println("obligations: " + obligations);
 								EmailCommonInfo emailDetails = proposalDAO
 										.saveProposalWithObligations(obligations);
 
@@ -1163,7 +1216,14 @@ public class ProposalService {
 			log.error(
 					"Could not save a New Proposal or update an existing Proposal error e=",
 					e);
+			errMessage = e.getMessage();
 		}
+		if(errMessage != "")
+			return Response
+					.status(403)
+					.entity(errMessage)
+					.build();
+		
 		return Response
 				.status(403)
 				.entity("{\"error\": \"Could Not Save A New Proposal OR Update AN Existing Proposal\", \"status\": \"FAIL\"}")
@@ -1550,22 +1610,32 @@ public class ProposalService {
 		boolean proposalIsChanged = false;
 		if (root != null && root.has("proposalInfo")) {
 			proposalInfo = root.get("proposalInfo");
-			proposalDAO.getProjectInfo(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getSponsorAndBudgetInfo(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getCostShareInfo(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getUniversityCommitments(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getConflictOfInterest(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getAdditionalInfo(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getCollaborationInfo(existingProposal, proposalID,
-					proposalInfo);
-			proposalDAO.getConfidentialInfo(existingProposal, proposalID,
-					proposalInfo);
+			//Adding user access validation
+			//THIS IS HARD-CODED AND BAD. THIS SHOULD
+			//BE CLEANED UP.
+			//Patrick Chapman
+			ArrayList<String> userSigInfo = new ArrayList<String>
+				(Arrays.asList(proposalInfo.get("SignatureInfo").
+				textValue().split("!#!")));
+			if(userSigInfo.get(5) == "PI"){
+				//End of Patrick code	
+				proposalDAO.getProjectInfo(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getSponsorAndBudgetInfo(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getCostShareInfo(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getUniversityCommitments(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getConflictOfInterest(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getAdditionalInfo(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getCollaborationInfo(existingProposal, proposalID,
+						proposalInfo);
+				proposalDAO.getConfidentialInfo(existingProposal, proposalID,
+						proposalInfo);
+			}
 			if (!isAdminUser) {
 				// OSP Section
 				JsonNode proposalUserTitle = root.get("proposalUserTitle");

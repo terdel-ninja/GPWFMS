@@ -94,6 +94,11 @@
 
 <link media="screen" rel="stylesheet"
 	href="css/Templates/application.css" type="text/css" />
+	
+<%--Update: Added in repatcha. This code must appear before </head>.
+Patrick Chapman 3/16/17--%>	
+<script src='https://www.google.com/recaptcha/api.js'></script>
+<%--End of Patrick Code --%>
 
 </head>
 <body class="account">
@@ -323,7 +328,14 @@
 							placeholder="Mobile Number" name="mobileNumber"
 							title="Mobile Number">
 					</div>
-
+					<%--Update: Added in repatcha item to just above the sign up button.
+					Patrick Chapman 3/16/17--%>
+					<div class="form_item">
+						<div class="g-recaptcha" data-sitekey="6LfUzyMUAAAAAOq5G-OE1YTehkSWGDQEj_6NLEdu"></div>
+						<span id="captcha" style="margin-left:10px;color:red"></span>
+					</div>
+					<%--End of Patrick Code --%>
+					
 					<button type="button" id="btnSignUp"
 						class="btn btn--large btn--expanded btn--blue">
 						<span>Sign up</span>

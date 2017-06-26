@@ -46,6 +46,7 @@ import gpms.model.UniversityCommitments;
 import gpms.model.UserProfile;
 import gpms.model.WithdrawType;
 import gpms.utils.EmailUtil;
+import gpms.utils.UserInputValidator;
 
 import java.io.File;
 import java.io.IOException;
@@ -1047,10 +1048,11 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 				.retrievedFields(true, "_id", "investigator info",
 						"signature info", "chair approval",
 						"business manager approval", "dean approval");
-
+		
 		Proposal proposal = q1.get();
 		final List<SignatureInfo> proposalSignatures = proposal
 				.getSignatureInfo();
+		
 
 		InvestigatorRefAndPosition PI = proposal.getInvestigatorInfo().getPi();
 		addPIAndCoPISignaturesToSignatureList(signatures, investigators,
@@ -3240,14 +3242,19 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	 * @param existingProposal
 	 * @param proposalInfo
 	 * @return
-	 * @throws ParseException
+	 * @throws Exception 
 	 */
 	public boolean getSignatureDetails(GPMSCommonInfo userInfo,
 			String proposalId, Proposal existingProposal, JsonNode proposalInfo)
-			throws ParseException {
+			throws Exception {
+		
+	
 		if (proposalInfo != null && proposalInfo.has("SignatureInfo")) {
 			String[] rows = proposalInfo.get("SignatureInfo").textValue()
 					.split("#!#");
+			
+			
+			
 			List<SignatureInfo> newSignatureInfo = new ArrayList<SignatureInfo>();
 			List<SignatureInfo> allSignatureInfo = new ArrayList<SignatureInfo>();
 			List<SignatureInfo> removeSignatureInfo = new ArrayList<SignatureInfo>();
@@ -3256,6 +3263,7 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 				String[] cols = col.split("!#!");
 				SignatureInfo signatureInfo = new SignatureInfo();
 				signatureInfo.setUserProfileId(cols[0]);
+				
 				final String signatureText = cols[1]
 						.replaceAll("\\<[^>]*>", "");
 				if (validateNotEmptyValue(signatureText)) {
