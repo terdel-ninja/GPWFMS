@@ -488,6 +488,17 @@ $(function () {
                 signUp.checkUniqueEmailAddress(user_id, email, this.id);
                 return false;
             });
+            //changes
+
+            $('#txtPassword').on("focus", function () {
+                $(this).siblings('.cssClassRight').hide();
+            }), $('#txtPassword').on("blur", function () {
+                var password = $.trim($(this).val());
+                var userName = $.trim($('#txtUserName').val());
+                signUp.checkValidPassword(userName, password, $(this));
+                return false;
+            });
+            //
 
             var $form = $("#form1");
             $form.find("[data-form-input]").on(
