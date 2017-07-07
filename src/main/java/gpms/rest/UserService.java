@@ -704,46 +704,44 @@ public class UserService {
     public Response GPMSPasswordValidation(
 
 
-        @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message)
-        {
-            try {
-                String userID = new String();
-                String password = new String();
-                String response = new String();
-                boolean valid = false;
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode root = mapper.readTree(message);
-                if (root != null && root.has("passwordObj")) {
-                    JsonNode passwordObj = root.get("passwordObj");
-                    if (passwordObj != null && passwordObj.has("UserID")) {
-                        userID = passwordObj.get("UserID").textValue();
-                    }
-                    if (passwordObj != null && passwordObj.has("Password")) {
-                        password = passwordObj.get("Password").textValue();
-                    }
-                    valid = PWValidator.valPass(userID, password);
+            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+        try {
+            String userID = new String();
+            String password = new String();
+            String response = new String();
+            boolean valid = false;
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(message);
+            if (root != null && root.has("passwordObj")) {
+                JsonNode passwordObj = root.get("passwordObj");
+                if (passwordObj != null && passwordObj.has("UserID")) {
+                    userID = passwordObj.get("UserID").textValue();
                 }
-                if(valid){
-                    response = mapper.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString("true");
+                if (passwordObj != null && passwordObj.has("Password")) {
+                    password = passwordObj.get("Password").textValue();
                 }
-                else{
-                    response = mapper.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString("false");
-                }
-                return Response.status(Response.Status.OK).entity(response).build();
-
-
-            } catch (Exception e) {
-                log.error("Could not check the validity of the password: error e=", e);
-
+                valid = PWValidator.valPass(userID, password);
             }
-            return Response
-                    .status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\": \"Could Not Check For Valid Password\", \"status\": \"FAIL\"}")
-                    .build();
+            if (valid) {
+                response = mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString("true");
+            } else {
+                response = mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString("false");
+            }
+            return Response.status(Response.Status.OK).entity(response).build();
 
-            
+
+        } catch (Exception e) {
+            log.error("Could not check the validity of the password: error e=", e);
+
+        }
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity("{\"error\": \"Could Not Check For Valid Password\", \"status\": \"FAIL\"}")
+                .build();
+
+
     }
 
     private class GPMSPasswordValidation {
@@ -856,533 +854,535 @@ public class UserService {
                 return costs[s2.length()];
             }
         }
-
-
-    //end change
-
-    @POST
-    @Path("/CheckUniqueEmail")
-    @ApiOperation(value = "Check for Unique Email Address", notes = "This API checks for unique Email Address")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { True/ False }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response checkUniqueEmail(
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::checkUniqueEmail started");
-            String userID = new String();
-            String newEmail = new String();
-            String response = new String();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            if (root != null && root.has("userUniqueObj")) {
-                JsonNode userUniqueObj = root.get("userUniqueObj");
-                if (userUniqueObj != null && userUniqueObj.has("UserID")) {
-                    userID = userUniqueObj.get("UserID").textValue();
-                }
-                if (userUniqueObj != null && userUniqueObj.has("NewEmail")) {
-                    newEmail = userUniqueObj.get("NewEmail").textValue();
-                }
-            }
-            ObjectId id = new ObjectId();
-            UserProfile userProfile = new UserProfile();
-            if (!userID.equals("0")) {
-                id = new ObjectId(userID);
-                userProfile = userProfileDAO.findNextUserWithSameEmail(id,
-                        newEmail);
-            } else {
-                userProfile = userProfileDAO.findAnyUserWithSameEmail(newEmail);
-            }
-            if (userProfile != null) {
-                response = mapper.writerWithDefaultPrettyPrinter()
-                        .writeValueAsString("false");
-            } else {
-                response = mapper.writerWithDefaultPrettyPrinter()
-                        .writeValueAsString("true");
-            }
-            return Response.status(Response.Status.OK).entity(response).build();
-        } catch (Exception e) {
-            log.error("Could not check Unique Email Address error e=", e);
-        }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Check for Unique Email Address\", \"status\": \"FAIL\"}")
-                .build();
     }
 
-    @POST
-    @Path("/signup")
-    @ApiOperation(value = "Registering a New user", notes = "This API signups a new user")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { True }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response signUpUser(
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::signUpUser started");
-            String userID = new String();
-            UserAccount newAccount = new UserAccount();
-            UserProfile newProfile = new UserProfile();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            if (root != null && root.has("userInfo")) {
-                JsonNode userInfo = root.get("userInfo");
-                if (userInfo != null && userInfo.has("UserID")) {
-                    userID = userInfo.get("UserID").textValue();
-                }
-                if (userID.equals("0")) {
-                    userProfileDAO.bindUserInfo(newAccount, newProfile,
-                            userInfo);
-                }
-                userAccountDAO.save(newAccount);
-                userProfileDAO.signUpUser(newProfile);
-                NotificationLog notification = new NotificationLog();
-                notification.setType("User");
-                notification.setAction("Signed up.");
-                notification.setUserProfileId(newAccount.getId().toString());
-                notification.setUsername(newAccount.getUserName());
-                notification.setForAdmin(true);
-                notificationDAO.save(notification);
-            }
-            OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
-            OutboundEvent event = eventBuilder.name("notification")
-                    .mediaType(MediaType.TEXT_PLAIN_TYPE)
-                    .data(String.class, "1").build();
-            NotificationService.BROADCASTER.broadcast(event);
-            return Response
-                    .status(Response.Status.OK)
-                    .entity(mapper.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString(true)).build();
 
-        } catch (Exception e) {
-            log.error("Could not register a new user error e=", e);
-        }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Register A New User\", \"status\": \"FAIL\"}")
-                .build();
-    }
+        //end change
 
-    @POST
-    @Path("/login")
-    @ApiOperation(value = "login user with valid username and password", notes = "This API allows to login a valid user with authorized username and password"
-            + "<p><u>Form Parameters</u><ul><li><b>username</b> is required</li><li><b>password</b> is required</li></ul>")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response login(
-            @ApiParam(value = "username", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("username") String email,
-            @ApiParam(value = "password", required = true, defaultValue = "password", allowableValues = "", allowMultiple = false) @FormParam("password") String password,
-            @Context HttpServletRequest req) {
-        try {
-            if (req == null) {
-                return Response
-                        .status(Response.Status.BAD_REQUEST)
-                        .entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
-                        .build();
-            }
-            List<UserProfile> userList = userProfileDAO.findAll();
-            boolean isFound = false;
-            if (userList.size() != 0) {
-                for (UserProfile user : userList) {
-                    if (user.getUserAccount().getUserName().equals(email)
-                            || user.getWorkEmails().contains(email)) {
-                        if (PasswordHash.validatePassword(password, user
-                                .getUserAccount().getPassword())
-                                && !user.isDeleted()
-                                && user.getUserAccount().isActive()
-                                && !user.getUserAccount().isDeleted()) {
-                            isFound = true;
-
-                            userProfileDAO.setMySessionID(req, user.getId()
-                                    .toString());
-                            java.net.URI location = new java.net.URI(
-                                    "../Home.jsp");
-                            if (user.getUserAccount().isAdmin()) {
-                                location = new java.net.URI("../Dashboard.jsp");
-                            }
-                            return Response.seeOther(location).build();
-                        } else {
-                            isFound = false;
-                        }
+        @POST
+        @Path("/CheckUniqueEmail")
+        @ApiOperation(value = "Check for Unique Email Address", notes = "This API checks for unique Email Address")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { True/ False }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response checkUniqueEmail(
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::checkUniqueEmail started");
+                String userID = new String();
+                String newEmail = new String();
+                String response = new String();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                if (root != null && root.has("userUniqueObj")) {
+                    JsonNode userUniqueObj = root.get("userUniqueObj");
+                    if (userUniqueObj != null && userUniqueObj.has("UserID")) {
+                        userID = userUniqueObj.get("UserID").textValue();
+                    }
+                    if (userUniqueObj != null && userUniqueObj.has("NewEmail")) {
+                        newEmail = userUniqueObj.get("NewEmail").textValue();
                     }
                 }
-            } else {
-                isFound = false;
+                ObjectId id = new ObjectId();
+                UserProfile userProfile = new UserProfile();
+                if (!userID.equals("0")) {
+                    id = new ObjectId(userID);
+                    userProfile = userProfileDAO.findNextUserWithSameEmail(id,
+                            newEmail);
+                } else {
+                    userProfile = userProfileDAO.findAnyUserWithSameEmail(newEmail);
+                }
+                if (userProfile != null) {
+                    response = mapper.writerWithDefaultPrettyPrinter()
+                            .writeValueAsString("false");
+                } else {
+                    response = mapper.writerWithDefaultPrettyPrinter()
+                            .writeValueAsString("true");
+                }
+                return Response.status(Response.Status.OK).entity(response).build();
+            } catch (Exception e) {
+                log.error("Could not check Unique Email Address error e=", e);
             }
-            if (!isFound) {
-                java.net.URI location = new java.net.URI(
-                        "../Login.jsp?msg=error");
-                return Response.seeOther(location).build();
-            }
-        } catch (Exception e) {
-            log.error("Could not find the User error e=", e);
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Check for Unique Email Address\", \"status\": \"FAIL\"}")
+                    .build();
         }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
-                .build();
-    }
 
-    @POST
-    @Path("/SetUserViewSession")
-    @ApiOperation(value = "Set User Session based on selected position detail", notes = "This API sets the selected position detail as a session")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { True }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response setUserViewSession(
-            @Context HttpServletRequest req,
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::setUserViewSession started");
-            userProfileDAO.deleteAllSession(req);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            if (root != null && root.has("userId") && root.has("userName")
-                    && root.has("isAdminUser")) {
-                String profileId = root.get("userId").textValue();
-                ObjectId id = new ObjectId(profileId);
-                String userName = new String();
-                Boolean isAdminUser = false;
-                String college = new String();
-                String department = new String();
-                String positionType = new String();
-                String positionTitle = new String();
-                userName = root.get("userName").textValue();
-                isAdminUser = Boolean.parseBoolean(root.get("isAdminUser")
-                        .textValue());
-                if (root != null && root.has("college")) {
-                    college = root.get("college").textValue();
+        @POST
+        @Path("/signup")
+        @ApiOperation(value = "Registering a New user", notes = "This API signups a new user")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { True }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response signUpUser(
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::signUpUser started");
+                String userID = new String();
+                UserAccount newAccount = new UserAccount();
+                UserProfile newProfile = new UserProfile();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                if (root != null && root.has("userInfo")) {
+                    JsonNode userInfo = root.get("userInfo");
+                    if (userInfo != null && userInfo.has("UserID")) {
+                        userID = userInfo.get("UserID").textValue();
+                    }
+                    if (userID.equals("0")) {
+                        userProfileDAO.bindUserInfo(newAccount, newProfile,
+                                userInfo);
+                    }
+                    userAccountDAO.save(newAccount);
+                    userProfileDAO.signUpUser(newProfile);
+                    NotificationLog notification = new NotificationLog();
+                    notification.setType("User");
+                    notification.setAction("Signed up.");
+                    notification.setUserProfileId(newAccount.getId().toString());
+                    notification.setUsername(newAccount.getUserName());
+                    notification.setForAdmin(true);
+                    notificationDAO.save(notification);
                 }
-                if (root != null && root.has("department")) {
-                    department = root.get("department").textValue();
-                }
-                if (root != null && root.has("positionType")) {
-                    positionType = root.get("positionType").textValue();
-                }
-                if (root != null && root.has("positionTitle")) {
-                    positionTitle = root.get("positionTitle").textValue();
-                }
-                UserProfile user = userProfileDAO.findMatchedUserDetails(id,
-                        userName, isAdminUser, college, department,
-                        positionType, positionTitle);
-                if (user != null) {
-                    userProfileDAO.setUserCurrentSession(req, userName,
-                            isAdminUser, profileId, college, department,
-                            positionType, positionTitle);
-                }
+                OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
+                OutboundEvent event = eventBuilder.name("notification")
+                        .mediaType(MediaType.TEXT_PLAIN_TYPE)
+                        .data(String.class, "1").build();
+                NotificationService.BROADCASTER.broadcast(event);
                 return Response
                         .status(Response.Status.OK)
                         .entity(mapper.writerWithDefaultPrettyPrinter()
                                 .writeValueAsString(true)).build();
-            }
-        } catch (Exception e) {
-            log.error(
-                    "Could not set User Session based on selected position detail error e=",
-                    e);
-        }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Set User Session Based On Selected Position Detail\", \"status\": \"FAIL\"}")
-                .build();
-    }
 
-    @GET
-    @Path("/logout")
-    @ApiOperation(value = "Logout the User", notes = "This API logouts the user")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { Redirect to Login page }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response logout(@Context HttpServletRequest req) {
-        try {
-            log.info("UserService::logout started");
-            if (req == null) {
-                log.error("Null request in context");
-                return Response
-                        .status(Response.Status.BAD_REQUEST)
-                        .entity("{\"error\": \"Could Not Logout the User\", \"status\": \"FAIL\"}")
-                        .build();
+            } catch (Exception e) {
+                log.error("Could not register a new user error e=", e);
             }
-            userProfileDAO.deleteAllSession(req);
-            return Response.seeOther(new java.net.URI("../Login.jsp")).build();
-        } catch (Exception e) {
-            log.error("Could not logout the user error e=", e);
-        }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Logout the User\", \"status\": \"FAIL\"}")
-                .build();
-    }
-
-    @POST
-    @Path("/GetAllUserDropdown")
-    @ApiOperation(value = "Get All Users", notes = "This API gets all active Users to bind in dropdowns")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { User Info }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response getAllUsers() {
-        try {
-            log.info("UserService::getAllUsers started");
-            HashMap<String, String> users = new HashMap<String, String>();
-            List<UserProfile> userprofiles = userProfileDAO
-                    .findAllUsersWithPosition();
-            for (UserProfile userProfile : userprofiles) {
-                users.put(userProfile.getId().toString(),
-                        userProfile.getFullName());
-            }
-            ObjectMapper mapper = new ObjectMapper();
             return Response
-                    .status(Response.Status.OK)
-                    .entity(mapper.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString(users)).build();
-        } catch (Exception e) {
-            log.error("Could not get all Users error e=", e);
-        }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Get All Users\", \"status\": \"FAIL\"}")
-                .build();
-    }
-
-    @POST
-    @Path("/GetCurrentPositionDetailsForPI")
-    @ApiOperation(value = "Get Current Position Details For PI", notes = "This API gets current Position Details for PI")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { Investigator Users And Positions }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response getCurrentPositionDetailsForPI(
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::getCurrentPositionDetailsForPI started");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            GPMSCommonInfo userInfo = new GPMSCommonInfo();
-            if (root != null && root.has("gpmsCommonObj")) {
-                JsonNode commonObj = root.get("gpmsCommonObj");
-                userInfo = new GPMSCommonInfo(commonObj);
-            }
-            ObjectId id = new ObjectId(userInfo.getUserProfileID());
-            final MultimapAdapter multimapAdapter = new MultimapAdapter();
-            final Gson gson = new GsonBuilder().setPrettyPrinting()
-                    .registerTypeAdapter(Multimap.class, multimapAdapter)
-                    .create();
-            return Response
-                    .status(Response.Status.OK)
-                    .entity(gson.toJson(userProfileDAO
-                            .findCurrentPositionDetailsForPI(id, userInfo)))
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Register A New User\", \"status\": \"FAIL\"}")
                     .build();
-        } catch (Exception e) {
-            log.error("Could not current Position Details for PI error e=", e);
         }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Current Position Details For PI\", \"status\": \"FAIL\"}")
-                .build();
-    }
 
-    @POST
-    @Path("/GetAllPositionDetailsForAUser")
-    @ApiOperation(value = "Get All Position Details For A User", notes = "This API gets all Position Details for a User")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { User Info }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response getAllPositionDetailsForAUser(
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::getAllPositionDetailsForAUser started");
-            String userId = new String();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            if (root != null && root.has("userId")) {
-                userId = root.get("userId").textValue();
+        @POST
+        @Path("/login")
+        @ApiOperation(value = "login user with valid username and password", notes = "This API allows to login a valid user with authorized username and password"
+                + "<p><u>Form Parameters</u><ul><li><b>username</b> is required</li><li><b>password</b> is required</li></ul>")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { Redirect to Dashboard page }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response login(
+                @ApiParam(value = "username", required = true, defaultValue = "test", allowableValues = "", allowMultiple = false) @FormParam("username") String email,
+                @ApiParam(value = "password", required = true, defaultValue = "password", allowableValues = "", allowMultiple = false) @FormParam("password") String password,
+                @Context HttpServletRequest req) {
+            try {
+                if (req == null) {
+                    return Response
+                            .status(Response.Status.BAD_REQUEST)
+                            .entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+                            .build();
+                }
+                List<UserProfile> userList = userProfileDAO.findAll();
+                boolean isFound = false;
+                if (userList.size() != 0) {
+                    for (UserProfile user : userList) {
+                        if (user.getUserAccount().getUserName().equals(email)
+                                || user.getWorkEmails().contains(email)) {
+                            if (PasswordHash.validatePassword(password, user
+                                    .getUserAccount().getPassword())
+                                    && !user.isDeleted()
+                                    && user.getUserAccount().isActive()
+                                    && !user.getUserAccount().isDeleted()) {
+                                isFound = true;
+
+                                userProfileDAO.setMySessionID(req, user.getId()
+                                        .toString());
+                                java.net.URI location = new java.net.URI(
+                                        "../Home.jsp");
+                                if (user.getUserAccount().isAdmin()) {
+                                    location = new java.net.URI("../Dashboard.jsp");
+                                }
+                                return Response.seeOther(location).build();
+                            } else {
+                                isFound = false;
+                            }
+                        }
+                    }
+                } else {
+                    isFound = false;
+                }
+                if (!isFound) {
+                    java.net.URI location = new java.net.URI(
+                            "../Login.jsp?msg=error");
+                    return Response.seeOther(location).build();
+                }
+            } catch (Exception e) {
+                log.error("Could not find the User error e=", e);
             }
-            ObjectId id = new ObjectId(userId);
-            final MultimapAdapter multimapAdapter = new MultimapAdapter();
-            final Gson gson = new GsonBuilder().setPrettyPrinting()
-                    .registerTypeAdapter(Multimap.class, multimapAdapter)
-                    .create();
             return Response
-                    .status(Response.Status.OK)
-                    .entity(gson.toJson(userProfileDAO
-                            .findAllPositionDetailsForAUser(id))).build();
-        } catch (Exception e) {
-            log.error("Could not get all Position Details for a User error e=",
-                    e);
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Find The User\", \"status\": \"FAIL\"}")
+                    .build();
         }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Get All Position Details For A User\", \"status\": \"FAIL\"}")
-                .build();
-    }
 
-    @POST
-    @Path("/GetAllProposalCountForAUser")
-    @ApiOperation(value = "Get All Proposal Count For A User", notes = "This API gets all proposal count for a User")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { User Info }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response getAllProposalCountForAUser(
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::getAllProposalCountForAUser started");
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            GPMSCommonInfo userInfo = new GPMSCommonInfo();
-            if (root != null && root.has("gpmsCommonObj")) {
-                JsonNode commonObj = root.get("gpmsCommonObj");
-                userInfo = new GPMSCommonInfo(commonObj);
+        @POST
+        @Path("/SetUserViewSession")
+        @ApiOperation(value = "Set User Session based on selected position detail", notes = "This API sets the selected position detail as a session")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { True }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response setUserViewSession(
+                @Context HttpServletRequest req,
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::setUserViewSession started");
+                userProfileDAO.deleteAllSession(req);
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                if (root != null && root.has("userId") && root.has("userName")
+                        && root.has("isAdminUser")) {
+                    String profileId = root.get("userId").textValue();
+                    ObjectId id = new ObjectId(profileId);
+                    String userName = new String();
+                    Boolean isAdminUser = false;
+                    String college = new String();
+                    String department = new String();
+                    String positionType = new String();
+                    String positionTitle = new String();
+                    userName = root.get("userName").textValue();
+                    isAdminUser = Boolean.parseBoolean(root.get("isAdminUser")
+                            .textValue());
+                    if (root != null && root.has("college")) {
+                        college = root.get("college").textValue();
+                    }
+                    if (root != null && root.has("department")) {
+                        department = root.get("department").textValue();
+                    }
+                    if (root != null && root.has("positionType")) {
+                        positionType = root.get("positionType").textValue();
+                    }
+                    if (root != null && root.has("positionTitle")) {
+                        positionTitle = root.get("positionTitle").textValue();
+                    }
+                    UserProfile user = userProfileDAO.findMatchedUserDetails(id,
+                            userName, isAdminUser, college, department,
+                            positionType, positionTitle);
+                    if (user != null) {
+                        userProfileDAO.setUserCurrentSession(req, userName,
+                                isAdminUser, profileId, college, department,
+                                positionType, positionTitle);
+                    }
+                    return Response
+                            .status(Response.Status.OK)
+                            .entity(mapper.writerWithDefaultPrettyPrinter()
+                                    .writeValueAsString(true)).build();
+                }
+            } catch (Exception e) {
+                log.error(
+                        "Could not set User Session based on selected position detail error e=",
+                        e);
             }
-            UserProposalCount count = userProfileDAO
-                    .getUserProposalCounts(userInfo);
             return Response
-                    .status(Response.Status.OK)
-                    .entity(mapper.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString(count)).build();
-        } catch (Exception e) {
-            log.error("Could not get all proposal count for a User error e=", e);
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Set User Session Based On Selected Position Detail\", \"status\": \"FAIL\"}")
+                    .build();
         }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Get All Proposal Count For A User\", \"status\": \"FAIL\"}")
-                .build();
-    }
 
-    @POST
-    @Path("/SaveUpdateUser")
-    @ApiOperation(value = "Save a New User or Update an existing User", notes = "This API saves a New User or updates an existing User")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success: { True }"),
-            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response saveUpdateUser(
-            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
-        try {
-            log.info("UserService::saveUpdateUser started");
-            String userID = new String();
-            UserAccount newAccount = new UserAccount();
-            UserProfile newProfile = new UserProfile();
-            UserAccount existingUserAccount = new UserAccount();
-            UserProfile existingUserProfile = new UserProfile();
-            UserProfile oldUserProfile = new UserProfile();
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(message);
-            boolean isActiveUser = false;
-            if (root != null && root.has("userInfo")) {
-                JsonNode userInfo = root.get("userInfo");
-                if (userInfo != null && userInfo.has("UserID")) {
-                    userID = userInfo.get("UserID").textValue();
-                    if (!userID.equals("0")) {
-                        ObjectId id = new ObjectId(userID);
-                        existingUserProfile = userProfileDAO
-                                .findUserDetailsByProfileID(id);
-                        oldUserProfile = SerializationHelper
-                                .cloneThroughSerialize(existingUserProfile);
-                    } else {
-                        newAccount.setAddedOn(new Date());
+        @GET
+        @Path("/logout")
+        @ApiOperation(value = "Logout the User", notes = "This API logouts the user")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { Redirect to Login page }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+        public Response logout(@Context HttpServletRequest req) {
+            try {
+                log.info("UserService::logout started");
+                if (req == null) {
+                    log.error("Null request in context");
+                    return Response
+                            .status(Response.Status.BAD_REQUEST)
+                            .entity("{\"error\": \"Could Not Logout the User\", \"status\": \"FAIL\"}")
+                            .build();
+                }
+                userProfileDAO.deleteAllSession(req);
+                return Response.seeOther(new java.net.URI("../Login.jsp")).build();
+            } catch (Exception e) {
+                log.error("Could not logout the user error e=", e);
+            }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Logout the User\", \"status\": \"FAIL\"}")
+                    .build();
+        }
+
+        @POST
+        @Path("/GetAllUserDropdown")
+        @ApiOperation(value = "Get All Users", notes = "This API gets all active Users to bind in dropdowns")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { User Info }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response getAllUsers() {
+            try {
+                log.info("UserService::getAllUsers started");
+                HashMap<String, String> users = new HashMap<String, String>();
+                List<UserProfile> userprofiles = userProfileDAO
+                        .findAllUsersWithPosition();
+                for (UserProfile userProfile : userprofiles) {
+                    users.put(userProfile.getId().toString(),
+                            userProfile.getFullName());
+                }
+                ObjectMapper mapper = new ObjectMapper();
+                return Response
+                        .status(Response.Status.OK)
+                        .entity(mapper.writerWithDefaultPrettyPrinter()
+                                .writeValueAsString(users)).build();
+            } catch (Exception e) {
+                log.error("Could not get all Users error e=", e);
+            }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Get All Users\", \"status\": \"FAIL\"}")
+                    .build();
+        }
+
+        @POST
+        @Path("/GetCurrentPositionDetailsForPI")
+        @ApiOperation(value = "Get Current Position Details For PI", notes = "This API gets current Position Details for PI")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { Investigator Users And Positions }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response getCurrentPositionDetailsForPI(
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::getCurrentPositionDetailsForPI started");
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                GPMSCommonInfo userInfo = new GPMSCommonInfo();
+                if (root != null && root.has("gpmsCommonObj")) {
+                    JsonNode commonObj = root.get("gpmsCommonObj");
+                    userInfo = new GPMSCommonInfo(commonObj);
+                }
+                ObjectId id = new ObjectId(userInfo.getUserProfileID());
+                final MultimapAdapter multimapAdapter = new MultimapAdapter();
+                final Gson gson = new GsonBuilder().setPrettyPrinting()
+                        .registerTypeAdapter(Multimap.class, multimapAdapter)
+                        .create();
+                return Response
+                        .status(Response.Status.OK)
+                        .entity(gson.toJson(userProfileDAO
+                                .findCurrentPositionDetailsForPI(id, userInfo)))
+                        .build();
+            } catch (Exception e) {
+                log.error("Could not current Position Details for PI error e=", e);
+            }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Current Position Details For PI\", \"status\": \"FAIL\"}")
+                    .build();
+        }
+
+        @POST
+        @Path("/GetAllPositionDetailsForAUser")
+        @ApiOperation(value = "Get All Position Details For A User", notes = "This API gets all Position Details for a User")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { User Info }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response getAllPositionDetailsForAUser(
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::getAllPositionDetailsForAUser started");
+                String userId = new String();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                if (root != null && root.has("userId")) {
+                    userId = root.get("userId").textValue();
+                }
+                ObjectId id = new ObjectId(userId);
+                final MultimapAdapter multimapAdapter = new MultimapAdapter();
+                final Gson gson = new GsonBuilder().setPrettyPrinting()
+                        .registerTypeAdapter(Multimap.class, multimapAdapter)
+                        .create();
+                return Response
+                        .status(Response.Status.OK)
+                        .entity(gson.toJson(userProfileDAO
+                                .findAllPositionDetailsForAUser(id))).build();
+            } catch (Exception e) {
+                log.error("Could not get all Position Details for a User error e=",
+                        e);
+            }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Get All Position Details For A User\", \"status\": \"FAIL\"}")
+                    .build();
+        }
+
+        @POST
+        @Path("/GetAllProposalCountForAUser")
+        @ApiOperation(value = "Get All Proposal Count For A User", notes = "This API gets all proposal count for a User")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { User Info }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response getAllProposalCountForAUser(
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::getAllProposalCountForAUser started");
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                GPMSCommonInfo userInfo = new GPMSCommonInfo();
+                if (root != null && root.has("gpmsCommonObj")) {
+                    JsonNode commonObj = root.get("gpmsCommonObj");
+                    userInfo = new GPMSCommonInfo(commonObj);
+                }
+                UserProposalCount count = userProfileDAO
+                        .getUserProposalCounts(userInfo);
+                return Response
+                        .status(Response.Status.OK)
+                        .entity(mapper.writerWithDefaultPrettyPrinter()
+                                .writeValueAsString(count)).build();
+            } catch (Exception e) {
+                log.error("Could not get all proposal count for a User error e=", e);
+            }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Get All Proposal Count For A User\", \"status\": \"FAIL\"}")
+                    .build();
+        }
+
+        @POST
+        @Path("/SaveUpdateUser")
+        @ApiOperation(value = "Save a New User or Update an existing User", notes = "This API saves a New User or updates an existing User")
+        @ApiResponses(value = {
+                @ApiResponse(code = 200, message = "Success: { True }"),
+                @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+        public Response saveUpdateUser(
+                @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+            try {
+                log.info("UserService::saveUpdateUser started");
+                String userID = new String();
+                UserAccount newAccount = new UserAccount();
+                UserProfile newProfile = new UserProfile();
+                UserAccount existingUserAccount = new UserAccount();
+                UserProfile existingUserProfile = new UserProfile();
+                UserProfile oldUserProfile = new UserProfile();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                boolean isActiveUser = false;
+                if (root != null && root.has("userInfo")) {
+                    JsonNode userInfo = root.get("userInfo");
+                    if (userInfo != null && userInfo.has("UserID")) {
+                        userID = userInfo.get("UserID").textValue();
+                        if (!userID.equals("0")) {
+                            ObjectId id = new ObjectId(userID);
+                            existingUserProfile = userProfileDAO
+                                    .findUserDetailsByProfileID(id);
+                            oldUserProfile = SerializationHelper
+                                    .cloneThroughSerialize(existingUserProfile);
+                        } else {
+                            newAccount.setAddedOn(new Date());
+                        }
+                    }
+                    existingUserAccount = userProfileDAO.addUserLoginDetails(
+                            userID, newAccount, existingUserAccount,
+                            existingUserProfile, userInfo);
+                    isActiveUser = userProfileDAO.addUserActiveStatus(userID,
+                            newAccount, newProfile, existingUserAccount,
+                            existingUserProfile, isActiveUser, userInfo);
+                    if (userID.equals("0")) {
+                        newProfile.setUserAccount(newAccount);
+                    }
+                    userProfileDAO.addGeneralUserInfo(userID, newProfile,
+                            existingUserProfile, userInfo);
+                    userProfileDAO.addAddressDetails(userID, newProfile,
+                            existingUserProfile, userInfo);
+                    userProfileDAO.addPhoneNumberDetails(userID, newProfile,
+                            existingUserProfile, userInfo);
+                    userProfileDAO.addEmailDetails(userID, newProfile,
+                            existingUserProfile, userInfo);
+                    if (userInfo != null && userInfo.has("SaveOptions")) {
+                        userProfileDAO.addUserPositionDetails(userID, newProfile,
+                                existingUserProfile, userInfo);
+                    } else if (userInfo != null && userInfo.has("positionTitle")) {
+                        userProfileDAO.addAdminUserDetails(userID, newProfile,
+                                existingUserProfile, userInfo);
                     }
                 }
-                existingUserAccount = userProfileDAO.addUserLoginDetails(
-                        userID, newAccount, existingUserAccount,
-                        existingUserProfile, userInfo);
-                isActiveUser = userProfileDAO.addUserActiveStatus(userID,
-                        newAccount, newProfile, existingUserAccount,
-                        existingUserProfile, isActiveUser, userInfo);
-                if (userID.equals("0")) {
-                    newProfile.setUserAccount(newAccount);
+                GPMSCommonInfo userInfo = new GPMSCommonInfo();
+                if (root != null && root.has("gpmsCommonObj")) {
+                    JsonNode commonObj = root.get("gpmsCommonObj");
+                    userInfo = new GPMSCommonInfo(commonObj);
                 }
-                userProfileDAO.addGeneralUserInfo(userID, newProfile,
-                        existingUserProfile, userInfo);
-                userProfileDAO.addAddressDetails(userID, newProfile,
-                        existingUserProfile, userInfo);
-                userProfileDAO.addPhoneNumberDetails(userID, newProfile,
-                        existingUserProfile, userInfo);
-                userProfileDAO.addEmailDetails(userID, newProfile,
-                        existingUserProfile, userInfo);
-                if (userInfo != null && userInfo.has("SaveOptions")) {
-                    userProfileDAO.addUserPositionDetails(userID, newProfile,
-                            existingUserProfile, userInfo);
-                } else if (userInfo != null && userInfo.has("positionTitle")) {
-                    userProfileDAO.addAdminUserDetails(userID, newProfile,
-                            existingUserProfile, userInfo);
-                }
+                ObjectId authorId = new ObjectId(userInfo.getUserProfileID());
+                UserProfile authorProfile = userProfileDAO
+                        .findUserDetailsByProfileID(authorId);
+                sendNotification(userID, newAccount, newProfile,
+                        existingUserAccount, existingUserProfile, oldUserProfile,
+                        isActiveUser, authorProfile);
+                return Response
+                        .status(Response.Status.OK)
+                        .entity(mapper.writerWithDefaultPrettyPrinter()
+                                .writeValueAsString(true)).build();
+            } catch (Exception e) {
+                log.error(
+                        "Could not save a New User or update an existing User error e=",
+                        e);
             }
-            GPMSCommonInfo userInfo = new GPMSCommonInfo();
-            if (root != null && root.has("gpmsCommonObj")) {
-                JsonNode commonObj = root.get("gpmsCommonObj");
-                userInfo = new GPMSCommonInfo(commonObj);
-            }
-            ObjectId authorId = new ObjectId(userInfo.getUserProfileID());
-            UserProfile authorProfile = userProfileDAO
-                    .findUserDetailsByProfileID(authorId);
-            sendNotification(userID, newAccount, newProfile,
-                    existingUserAccount, existingUserProfile, oldUserProfile,
-                    isActiveUser, authorProfile);
             return Response
-                    .status(Response.Status.OK)
-                    .entity(mapper.writerWithDefaultPrettyPrinter()
-                            .writeValueAsString(true)).build();
-        } catch (Exception e) {
-            log.error(
-                    "Could not save a New User or update an existing User error e=",
-                    e);
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Save A New User OR Update AN Existing User\", \"status\": \"FAIL\"}")
+                    .build();
         }
-        return Response
-                .status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Could Not Save A New User OR Update AN Existing User\", \"status\": \"FAIL\"}")
-                .build();
+
+        /**
+         * Sends Notification For User Save and Update
+         *
+         * @param userID
+         * @param newAccount
+         * @param newProfile
+         * @param existingUserAccount
+         * @param existingUserProfile
+         * @param oldUserProfile
+         * @param isActiveUser
+         * @param authorProfile
+         */
+        private void sendNotification(String userID, UserAccount newAccount,
+                                      UserProfile newProfile, UserAccount existingUserAccount,
+                                      UserProfile existingUserProfile, UserProfile oldUserProfile,
+                                      boolean isActiveUser, UserProfile authorProfile) {
+            if (!userID.equals("0")) {
+                if (!oldUserProfile.equals(existingUserProfile)) {
+                    if (!oldUserProfile.getUserAccount()
+                            .equals(existingUserAccount)) {
+                        userAccountDAO.save(existingUserAccount);
+                    }
+                    userProfileDAO.updateUser(existingUserProfile, authorProfile);
+                    String action = new String();
+                    if (isActiveUser) {
+                        action = "Account is activated.";
+                    } else {
+                        action = "Account is updated.";
+                    }
+                    notificationDAO.notifyAdmin(existingUserProfile, "User",
+                            action, true);
+                    for (PositionDetails positions : existingUserProfile
+                            .getDetails()) {
+                        notificationDAO.notifyInvestigators(existingUserProfile,
+                                "User", "Account is updated.", false, positions);
+                    }
+                }
+            } else {
+                userAccountDAO.save(newAccount);
+                userProfileDAO.saveUser(newProfile, authorProfile);
+                notificationDAO.notifyAdmin(newProfile, "User",
+                        "Account is created.", true);
+                for (PositionDetails positions : newProfile.getDetails()) {
+                    notificationDAO.notifyInvestigators(newProfile, "User",
+                            "Account is created.", false, positions);
+                }
+            }
+            OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
+            OutboundEvent event = eventBuilder.name("notification")
+                    .mediaType(MediaType.TEXT_PLAIN_TYPE).data(String.class, "1")
+                    .build();
+            NotificationService.BROADCASTER.broadcast(event);
+        }
     }
 
-    /**
-     * Sends Notification For User Save and Update
-     *
-     * @param userID
-     * @param newAccount
-     * @param newProfile
-     * @param existingUserAccount
-     * @param existingUserProfile
-     * @param oldUserProfile
-     * @param isActiveUser
-     * @param authorProfile
-     */
-    private void sendNotification(String userID, UserAccount newAccount,
-                                  UserProfile newProfile, UserAccount existingUserAccount,
-                                  UserProfile existingUserProfile, UserProfile oldUserProfile,
-                                  boolean isActiveUser, UserProfile authorProfile) {
-        if (!userID.equals("0")) {
-            if (!oldUserProfile.equals(existingUserProfile)) {
-                if (!oldUserProfile.getUserAccount()
-                        .equals(existingUserAccount)) {
-                    userAccountDAO.save(existingUserAccount);
-                }
-                userProfileDAO.updateUser(existingUserProfile, authorProfile);
-                String action = new String();
-                if (isActiveUser) {
-                    action = "Account is activated.";
-                } else {
-                    action = "Account is updated.";
-                }
-                notificationDAO.notifyAdmin(existingUserProfile, "User",
-                        action, true);
-                for (PositionDetails positions : existingUserProfile
-                        .getDetails()) {
-                    notificationDAO.notifyInvestigators(existingUserProfile,
-                            "User", "Account is updated.", false, positions);
-                }
-            }
-        } else {
-            userAccountDAO.save(newAccount);
-            userProfileDAO.saveUser(newProfile, authorProfile);
-            notificationDAO.notifyAdmin(newProfile, "User",
-                    "Account is created.", true);
-            for (PositionDetails positions : newProfile.getDetails()) {
-                notificationDAO.notifyInvestigators(newProfile, "User",
-                        "Account is created.", false, positions);
-            }
-        }
-        OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
-        OutboundEvent event = eventBuilder.name("notification")
-                .mediaType(MediaType.TEXT_PLAIN_TYPE).data(String.class, "1")
-                .build();
-        NotificationService.BROADCASTER.broadcast(event);
-    }
-}

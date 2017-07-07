@@ -281,7 +281,36 @@ $(function () {
             return //somethign
 
         },
-        //
+
+        checkValidPassword: function (user, password, textboxPassword) {
+            var errors = '';
+            if (!textboxPassword.hasClass('error') && password.length > 0) {
+                if (!signUp.isValidPassword(user, password)) {
+                    errors += 'This password is invalid. Your password must be different from your username and not be a popular password'
+                    password.addClass("error");
+                    password.siblings('.cssClassRight').hide();
+                    if (textBoxUserName.siblings('label.error').exists()) {
+                        textBoxUserName.siblings('label.error').html(errors);
+                    } else {
+                        $(
+                            '<label id="txtUserName-error" class="error" for="txtUserName">'
+                            + errors + '</label>').insertAfter(
+                            textBoxUserName);
+                    }
+
+                    textBoxUserName.siblings('.error').show();
+                    // textBoxUserName.focus();
+                } else {
+                    textBoxUserName.removeClass("error");
+                    textBoxUserName.siblings('.cssClassRight').show();
+                    textBoxUserName.siblings('.error').hide();
+                    textBoxUserName.siblings('.error').html('');
+                }
+            }
+            return errors;
+        },
+
+        //Changes here
 
         signUpUser: function () {
             if (validator.form()) {
@@ -297,6 +326,15 @@ $(function () {
                     validateErrorMessage += signUp.checkUniqueEmailAddress(
                         user_id, workEmail, "txtWorkEmail");
                 }
+                //changes here specifically
+
+                if (validateErrorMessage == "") {
+                    var $password = $("#txtWorkEmail");
+                    var password = $.trim($workEmail.val());
+                    validateErrorMessage += signUp.checkValidPassword(user_id, password, $password
+                        );
+                }
+                //
 
                 if (validateErrorMessage == "") {
                     var userInfo = {
