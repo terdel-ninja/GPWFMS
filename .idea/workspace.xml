@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="1ea51d89-dc31-4852-b081-4b94775f981e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" afterPath="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js" afterPath="$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,12 +28,12 @@
       <file leaf-file-name="UserService.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="260">
-              <caret line="735" column="0" lean-forward="true" selection-start-line="735" selection-start-column="0" selection-end-line="735" selection-end-column="0" />
+            <state relative-caret-position="380">
+              <caret line="745" column="12" lean-forward="false" selection-start-line="745" selection-start-column="12" selection-end-line="745" selection-end-column="12" />
               <folding>
-                <element signature="e#35804#35805#0" expanded="true" />
-                <element signature="e#35850#35851#0" expanded="true" />
-                <element signature="e#37166#37182#0" expanded="true" />
+                <element signature="e#36022#36023#0" expanded="true" />
+                <element signature="e#36068#36069#0" expanded="true" />
+                <element signature="e#37384#37400#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -81,6 +80,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js" />
+        <option value="$MAVEN_REPOSITORY$/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar!/javax/ws/rs/core/Response.class" />
         <option value="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" />
       </list>
     </option>
@@ -1090,7 +1090,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1499373939015</updated>
-      <workItem from="1499373940470" duration="10126000" />
+      <workItem from="1499373940470" duration="10376000" />
     </task>
     <servers />
   </component>
@@ -1100,7 +1100,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10126000" />
+    <option name="totallyTimeSpent" value="10376000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -1207,14 +1207,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar!/javax/ws/rs/core/Response.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="203">
-          <caret line="154" column="66" lean-forward="false" selection-start-line="154" selection-start-column="66" selection-end-line="154" selection-end-column="66" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/gpms/model/EmailCommonInfo.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
@@ -1307,14 +1299,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar!/javax/ws/rs/core/Response.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1103">
+          <caret line="162" column="23" lean-forward="false" selection-start-line="162" selection-start-column="23" selection-end-line="162" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="260">
-          <caret line="735" column="0" lean-forward="true" selection-start-line="735" selection-start-column="0" selection-end-line="735" selection-end-column="0" />
+        <state relative-caret-position="380">
+          <caret line="745" column="12" lean-forward="false" selection-start-line="745" selection-start-column="12" selection-end-line="745" selection-end-column="12" />
           <folding>
-            <element signature="e#35804#35805#0" expanded="true" />
-            <element signature="e#35850#35851#0" expanded="true" />
-            <element signature="e#37166#37182#0" expanded="true" />
+            <element signature="e#36022#36023#0" expanded="true" />
+            <element signature="e#36068#36069#0" expanded="true" />
+            <element signature="e#37384#37400#0" expanded="true" />
           </folding>
         </state>
       </provider>

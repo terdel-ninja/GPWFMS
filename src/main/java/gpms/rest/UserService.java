@@ -701,9 +701,9 @@ public class UserService {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success: { True/ False }"),
             @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
-    public Response GPMSPasswordValidation
+    public Response GPMSPasswordValidation(
 
-    {
+
         @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message)
         {
             try {
@@ -738,9 +738,12 @@ public class UserService {
                 log.error("Could not check the validity of the password: error e=", e);
 
             }
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Could Not Check For Valid Password\", \"status\": \"FAIL\"}")
+                    .build();
 
-        }
-
+            
     }
 
     private class GPMSPasswordValidation {
@@ -854,7 +857,7 @@ public class UserService {
             }
         }
 
-    }
+
     //end change
 
     @POST
