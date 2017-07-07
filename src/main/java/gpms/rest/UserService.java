@@ -694,7 +694,7 @@ public class UserService {
                 .build();
     }
 
-    //The password Validation was added by Anthony Luo
+    //The password Validation was added by Anthony Luo //changes start here
     @POST
     @Path("/PasswordValidation")
     @ApiOperation(value = "Check for valid Password in accordance to NIST", notes = "This API checks for a valid password")
@@ -857,7 +857,7 @@ public class UserService {
     }
 
 
-        //end change
+        //end changes
 
         @POST
         @Path("/CheckUniqueEmail")

@@ -1,4 +1,5 @@
 var signUp = '';
+//Changes to this file and UserService.java were made by Anthony Luo for conformance to the 2017 NIST Standards.
 $(function () {
 
     // if (userProfileId == "null") {
@@ -27,7 +28,7 @@ $(function () {
                         required: true,
                         minlength: 8,
                         maxlength: 64,
-                        //end changes 
+                        //end changes
                         equalTo: "#txtPassword"
                     },
                     workEmail: {

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1ea51d89-dc31-4852-b081-4b94775f981e" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" afterPath="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js" afterPath="$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
@@ -15,25 +16,25 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="SignUp.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SignUp.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="38" lean-forward="false" selection-start-line="29" selection-start-column="38" selection-end-line="29" selection-end-column="38" />
+            <state relative-caret-position="15">
+              <caret line="1" column="112" lean-forward="false" selection-start-line="1" selection-start-column="112" selection-end-line="1" selection-end-column="112" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="UserService.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="UserService.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="305">
-              <caret line="729" column="50" lean-forward="false" selection-start-line="729" selection-start-column="45" selection-end-line="729" selection-end-column="50" />
+            <state relative-caret-position="185">
+              <caret line="859" column="21" lean-forward="false" selection-start-line="859" selection-start-column="21" selection-end-line="859" selection-end-column="21" />
               <folding>
-                <element signature="e#35865#35866#0" expanded="true" />
-                <element signature="e#35911#35912#0" expanded="true" />
-                <element signature="e#37227#37243#0" expanded="true" />
+                <element signature="e#35886#35887#0" expanded="true" />
+                <element signature="e#35932#35933#0" expanded="true" />
+                <element signature="e#37248#37264#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -80,8 +81,8 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$MAVEN_REPOSITORY$/javax/ws/rs/javax.ws.rs-api/2.0.1/javax.ws.rs-api-2.0.1.jar!/javax/ws/rs/core/Response.class" />
-        <option value="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" />
         <option value="$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js" />
+        <option value="$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java" />
       </list>
     </option>
   </component>
@@ -966,7 +967,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1499373939015</updated>
-      <workItem from="1499373940470" duration="14626000" />
+      <workItem from="1499373940470" duration="14798000" />
     </task>
     <servers />
   </component>
@@ -976,7 +977,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="14626000" />
+    <option name="totallyTimeSpent" value="14798000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -1175,18 +1176,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="305">
-          <caret line="729" column="50" lean-forward="false" selection-start-line="729" selection-start-column="45" selection-end-line="729" selection-end-column="50" />
-          <folding>
-            <element signature="e#35865#35866#0" expanded="true" />
-            <element signature="e#35911#35912#0" expanded="true" />
-            <element signature="e#37227#37243#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/seleniumhq/selenium/selenium-server/2.53.0/selenium-server-2.53.0.jar!/core/scripts/htmlutils.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1375">
@@ -1197,9 +1186,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/webapp/js/modules/SignUp.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" column="38" lean-forward="false" selection-start-line="29" selection-start-column="38" selection-end-line="29" selection-end-column="38" />
+        <state relative-caret-position="15">
+          <caret line="1" column="112" lean-forward="false" selection-start-line="1" selection-start-column="112" selection-end-line="1" selection-end-column="112" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/gpms/rest/UserService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="859" column="21" lean-forward="false" selection-start-line="859" selection-start-column="21" selection-end-line="859" selection-end-column="21" />
+          <folding>
+            <element signature="e#35886#35887#0" expanded="true" />
+            <element signature="e#35932#35933#0" expanded="true" />
+            <element signature="e#37248#37264#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
