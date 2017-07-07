@@ -278,7 +278,7 @@ $(function () {
             });
             this.config.ajaxCallMode = 4;
             this.ajaxCall(this.config);
-            return //somethign
+            return passwordisValid;
 
         },
 
@@ -287,28 +287,29 @@ $(function () {
             if (!textboxPassword.hasClass('error') && password.length > 0) {
                 if (!signUp.isValidPassword(user, password)) {
                     errors += 'This password is invalid. Your password must be different from your username and not be a popular password'
-                    password.addClass("error");
-                    password.siblings('.cssClassRight').hide();
-                    if (textBoxUserName.siblings('label.error').exists()) {
-                        textBoxUserName.siblings('label.error').html(errors);
+                    textboxPassword.addClass("error");
+                    textboxPassword.siblings('.cssClassRight').hide();
+                    if (textboxPassword.siblings('label.error').exists()) {
+                        textboxPassword.siblings('label.error').html(errors);
                     } else {
                         $(
                             '<label id="txtUserName-error" class="error" for="txtUserName">'
                             + errors + '</label>').insertAfter(
-                            textBoxUserName);
+                            textboxPassword);
                     }
 
-                    textBoxUserName.siblings('.error').show();
+                    textboxPassword.siblings('.error').show();
                     // textBoxUserName.focus();
                 } else {
-                    textBoxUserName.removeClass("error");
-                    textBoxUserName.siblings('.cssClassRight').show();
-                    textBoxUserName.siblings('.error').hide();
-                    textBoxUserName.siblings('.error').html('');
+                    textboxPassword.removeClass("error");
+                    textboxPassword.siblings('.cssClassRight').show();
+                    textboxPassword.siblings('.error').hide();
+                    textboxPassword.siblings('.error').html('');
                 }
             }
             return errors;
         },
+        //
 
         //Changes here
 
@@ -329,8 +330,8 @@ $(function () {
                 //changes here specifically
 
                 if (validateErrorMessage == "") {
-                    var $password = $("#txtWorkEmail");
-                    var password = $.trim($workEmail.val());
+                    var $password = $("#txtPassword");
+                    var password = $.trim($password.val());
                     validateErrorMessage += signUp.checkValidPassword(user_id, password, $password
                         );
                 }
