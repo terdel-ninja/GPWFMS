@@ -27,7 +27,7 @@ $(function () {
                         required: true,
                         minlength: 8,
                         maxlength: 64,
-                        //
+                        //end changes 
                         equalTo: "#txtPassword"
                     },
                     workEmail: {
@@ -80,15 +80,14 @@ $(function () {
                         //Changes Here
                         minlength: "Your password must be between 8 and 64 characters",
                         maxlength: "Your password must be between 8 and 64 characters"
-                        //
+
                     },
                     confirm_password: {
                         required: "Please confirm your password",
-                        //Changes
                         minlength: "Your password must be between 8 and 64 characters",
                         equalTo: "Please enter the same password as above",
                         maxlength: "Your password must be between 8 and 64 characters"
-                        //
+                        // end changes
                     },
                     workEmail: {
                         required: "Please enter your work email",
@@ -239,7 +238,7 @@ $(function () {
                     }
 
                     txtEmail.siblings('.error').show();
-                    // txtEmail.focus(); // I did not add this
+                    // txtEmail.focus();
                 } else {
                     txtEmail.removeClass("error");
                     txtEmail.siblings('.cssClassRight').show();
@@ -309,7 +308,7 @@ $(function () {
             }
             return errors;
         },
-        //
+        // end changes
 
         //Changes here
 
@@ -327,7 +326,7 @@ $(function () {
                     validateErrorMessage += signUp.checkUniqueEmailAddress(
                         user_id, workEmail, "txtWorkEmail");
                 }
-                //changes here specifically
+
 
                 if (validateErrorMessage == "") {
                     var $password = $("#txtPassword");
@@ -335,7 +334,7 @@ $(function () {
                     validateErrorMessage += signUp.checkValidPassword(user_id, password, $password
                         );
                 }
-                //
+                // end changes
 
                 if (validateErrorMessage == "") {
                     var userInfo = {
@@ -488,7 +487,7 @@ $(function () {
                 signUp.checkUniqueEmailAddress(user_id, email, this.id);
                 return false;
             });
-            //changes
+            //changes here
 
             $('#txtPassword').on("focus", function () {
                 $(this).siblings('.cssClassRight').hide();
@@ -498,7 +497,7 @@ $(function () {
                 signUp.checkValidPassword(userName, password, $(this));
                 return false;
             });
-            //
+            // end changes
 
             var $form = $("#form1");
             $form.find("[data-form-input]").on(
