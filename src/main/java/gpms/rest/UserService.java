@@ -688,6 +688,41 @@ public class UserService {
 				.build();
 	}
 
+	//The password Validation was added by Anthony Luo
+	@POST
+	@Path("/GPMSPasswordValidation")
+	@ApiOperation(value = "Check for valid Password in accordance to NIST", notes = "This API checks for a valid password")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { True/ False }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response GPMSPasswordValidation {
+		@ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message)
+		{
+		    try{
+                String userID = new String();
+                String newEmail = new String();
+                String response = new String();
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode root = mapper.readTree(message);
+                if (root != null && root.has("passwordObj")) {
+                    JsonNode passwordObj = root.get("passwordObj");
+                    if (passwordObj != null && passwordObj.has("UserID")) {
+                        userID = passwordObj.get("UserID").textValue();
+                    }
+                    if (passwordObj != null && passwordObj.has("Password")) {
+                        newEmail = passwordObj.get("Password").textValue();
+                    }
+                }
+            }
+            catch(Exception e){
+
+            }
+
+		}
+
+	}
+	//end change
+
 	@POST
 	@Path("/CheckUniqueEmail")
 	@ApiOperation(value = "Check for Unique Email Address", notes = "This API checks for unique Email Address")
