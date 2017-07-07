@@ -272,7 +272,7 @@ $(function () {
                 Password: password
             };
 
-            this.config.url =this.config.baseURL + "GPMSPasswordValidation";
+            this.config.url =this.config.baseURL + "PasswordValidation";
             this.config.data = JSON2.stringify({
                 passwordObj: passwordObj
             });
