@@ -311,7 +311,6 @@ $(function () {
         },
         // end changes
 
-        //Changes here
 
         signUpUser: function () {
             if (validator.form()) {
@@ -328,7 +327,7 @@ $(function () {
                         user_id, workEmail, "txtWorkEmail");
                 }
 
-
+                //Changes here
                 if (validateErrorMessage == "") {
                     var $password = $("#txtPassword");
                     var password = $.trim($password.val());
