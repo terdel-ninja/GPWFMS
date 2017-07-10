@@ -286,7 +286,7 @@ $(function () {
             var errors = '';
             if (!textboxPassword.hasClass('error') && password.length > 0) {
                 if (!signUp.isValidPassword(user, password)) {
-                    errors += 'This password is invalid. Your password must be different from your username and not be a popular password'
+                    errors += 'This password is invalid. \n\u2022 Your password must be different from your username \n\u2022 Your password cannot be a popular password'
                     textboxPassword.addClass("error");
                     textboxPassword.siblings('.cssClassRight').hide();
                     if (textboxPassword.siblings('label.error').exists()) {

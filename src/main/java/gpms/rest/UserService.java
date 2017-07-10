@@ -781,7 +781,7 @@ public class UserService {
         private HashMap createMap() {
             HashMap<String, String> map = new HashMap<String, String>();
             try {
-                BufferedReader input = new BufferedReader(new FileReader("blacklistpassword.txt"));
+                BufferedReader input = new BufferedReader(new FileReader("/Users/anthonyluo/Desktop/GPWFMS/src/main/java/gpms/rest/blacklistpassword.txt"));
 
                 String line = "";
                 //this.salt = input.readLine();
@@ -796,6 +796,7 @@ public class UserService {
 
             } catch (IOException e) {
                 System.out.println("File is not found");
+                e.printStackTrace();
             }
             return map;
 
