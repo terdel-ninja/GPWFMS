@@ -1,5 +1,5 @@
 var signUp = '';
-//Changes to this file and UserService.java were made by Anthony Luo for conformance to the 2017 NIST Standards.
+//Changes to this file, UserService.java, and Signup.jsp were made by Anthony Luo for conformance to the 2017 NIST Password Standards.
 $(function () {
 
     // if (userProfileId == "null") {
@@ -265,7 +265,7 @@ $(function () {
             return emailIsUnique;
         },
 
-        //Password Validation added by Anthony Luo
+        //Password Validation Changes added by Anthony Luo
         isValidPassword: function (user, password){
             var passwordObj = {
                 UserID: user,
@@ -286,7 +286,7 @@ $(function () {
             var errors = '';
             if (!textboxPassword.hasClass('error') && password.length > 0) {
                 if (!signUp.isValidPassword(user, password)) {
-                    errors += 'This password is invalid. <br> \u2022 Your password must be different from your username <br> \u2022 Your password cannot be a popular password'
+                    errors += 'This password is invalid. <br> \u2022 Your password must be different from your username <br> \u2022 Your password cannot be a popular password' //the error thrown here can be ignored safely
                     textboxPassword.addClass("error");
                     textboxPassword.siblings('.cssClassRight').hide();
                     if (textboxPassword.siblings('label.error').exists()) {
@@ -437,12 +437,12 @@ $(function () {
                     csscody.error("<h2>" + 'Error Message' + "</h2><p>"
                         + 'Failed to save user!' + "</p>");
                     break;
-                //Changes
+                //Changes here
                 case 4:
                     csscody.error("<h2>" + 'Error Message' + "</h2><p>"
                         + 'Cannot check if this is a valid password!' + "</p>");
                     break;
-                //
+                //end changes
 
             }
         },
