@@ -1611,13 +1611,15 @@ public class ProposalService {
 		if (root != null && root.has("proposalInfo")) {
 			proposalInfo = root.get("proposalInfo");
 			//Adding user access validation
-			//THIS IS HARD-CODED AND BAD. THIS SHOULD
-			//BE CLEANED UP.
+			//I have a feeling that this can be exploited by manipulating
+			//JSON object that is sent back to the server.
 			//Patrick Chapman
-			ArrayList<String> userSigInfo = new ArrayList<String>
-				(Arrays.asList(proposalInfo.get("SignatureInfo").
-				textValue().split("!#!")));
-			if(userSigInfo.get(5) == "PI"){
+			
+			//Grabs the current user's role in the proposal
+			JsonNode  proposalRole = root.get("proposalRoles");
+			System.out.println("Hello: " + proposalRole.textValue());
+			if(proposalRole.textValue().equals("PI") ||
+				proposalRole.textValue().equals("")){ // "" for when proposal is first created
 				//End of Patrick code	
 				proposalDAO.getProjectInfo(existingProposal, proposalID,
 						proposalInfo);
