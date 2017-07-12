@@ -744,7 +744,7 @@ public class UserService {
 
     @POST
     @Path("/CredentialValidation")
-    @ApiOperation(value = "Check for valid Credentials in accordance to NIST", notes = "This API checks for a valid password")
+    @ApiOperation(value = "Check for valid Credentials in accordance to NIST", notes = "This API checks for valid crendetials")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success: { True/ False }"),
             @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
@@ -767,7 +767,7 @@ public class UserService {
                 if (passwordObj != null && passwordObj.has("Password")) {
                     password = passwordObj.get("Password").textValue();
                 }
-                valid = PWValidator.validateCredential(userID, password);
+                valid = PWValidator.checkSimilarity(userID, password);
             }
             if (valid) {
                 response = mapper.writerWithDefaultPrettyPrinter()
@@ -832,7 +832,7 @@ public class UserService {
         private HashMap createMap() {
             HashMap<String, String> map = new HashMap<String, String>();
             try {
-                BufferedReader input = new BufferedReader(new FileReader("blacklistpassword.txt"));
+                BufferedReader input = new BufferedReader(new FileReader("/Users/anthonyluo/Desktop/GPWFMS/src/main/java/gpms/rest/blacklistpassword.txt"));
                 String line = "";
                 while ((line = input.readLine()) != null) {
                     if (line.length() > 7) {

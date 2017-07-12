@@ -273,7 +273,7 @@ $(function () {
                 Password: password
             };
 
-            this.config.url =this.config.baseURL + "PasswordValidation";
+            this.config.url =this.config.baseURL + "CredentialValidation";
             this.config.data = JSON2.stringify({
                 passwordObj: passwordObj
             });
@@ -287,14 +287,14 @@ $(function () {
             var errors = '';
             if (!textboxPassword.hasClass('error') && password.length > 0) {
                 if (!signUp.isValidCredential(user, password)) {
-                    errors += 'This password is invalid. Your password must be different from your username ' /
+                    errors += 'This password is invalid. Your password must be different from your username ';
                     textboxPassword.addClass("error");
                     textboxPassword.siblings('.cssClassRight').hide();
                     if (textboxPassword.siblings('label.error').exists()) {
                         textboxPassword.siblings('label.error').html(errors);
                     } else {
                         $(
-                            '<label id="txtUserName-error" class="error" for="txtUserName">'
+                            '<label id="txtUserName-error" class="error" for="txtPassword">'
                             + errors + '</label>').insertAfter(
                             textboxPassword);
                     }
@@ -317,7 +317,7 @@ $(function () {
 
             };
 
-            this.config.url = this.config.baseURL + "isValidCredential";
+            this.config.url = this.config.baseURL + "PasswordValidation";
             this.config.data = JSON2.stringify({
                 passwordObj: passwordObj
             });
@@ -330,14 +330,14 @@ $(function () {
             var errors = '';
             if (!textboxPassword.hasClass('error') && password.length > 0) {
                 if (!signUp.isValidPassword(password)) {
-                    errors += 'This password is invalid. Your password must not be a popular password'
+                    errors += 'This password is invalid. Your password must not be a popular password';
                     textboxPassword.addClass("error");
                     textboxPassword.siblings('.cssClassRight').hide();
                     if (textboxPassword.siblings('label.error').exists()) {
                         textboxPassword.siblings('label.error').html(errors);
                     } else {
                         $(
-                            '<label id="txtUserName-error" class="error" for="txtUserName">'
+                            '<label id="txtUserName-error" class="error" for="txtPassword">'
                             + errors + '</label>').insertAfter(
                             textboxPassword);
                     }
@@ -378,14 +378,16 @@ $(function () {
                     var password = $.trim($password.val());
                     validateErrorMessage += signUp.checkValidPassword(password, $password
                         );
+                    validateErrorMessage += signUp.checkValidCredential(user_id, password, $password
+                    );
                 }
 
-                if (validateErrorMessage == "") {
+                /*if (validateErrorMessage == "") {
                     var $password = $("#txtPassword");
                     var password = $.trim($password.val());
                     validateErrorMessage += signUp.checkValidCredential(user_id, password, $password
                     );
-                }
+                }*/
                 // end changes
 
                 if (validateErrorMessage == "") {
@@ -554,16 +556,17 @@ $(function () {
                 var password = $.trim($(this).val());
                 var userName = $.trim($('#txtUserName').val());
                 signUp.checkValidCredential(userName, password, $(this));
+                signUp.checkValidPassword(password, $(this));
                 return false;
             });
 
-            $('#txtPassword').on("focus", function () {
+            /*$('#txtPassword').on("focus", function () {
                 $(this).siblings('.cssClassRight').hide();
             }), $('#txtPassword').on("blur", function () {
                 var password = $.trim($(this).val());
                 signUp.checkValidPassword(password, $(this));
                 return false;
-            });
+            });*/
 
             // end changes
 
