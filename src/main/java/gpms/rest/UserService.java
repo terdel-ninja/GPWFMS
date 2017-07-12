@@ -706,7 +706,7 @@ public class UserService {
 
             @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
         try {
-            String userID = new String();
+
             String password = new String();
             String response = new String();
             boolean valid = false;
@@ -714,13 +714,11 @@ public class UserService {
             JsonNode root = mapper.readTree(message);
             if (root != null && root.has("passwordObj")) {
                 JsonNode passwordObj = root.get("passwordObj");
-                if (passwordObj != null && passwordObj.has("UserID")) {
-                    userID = passwordObj.get("UserID").textValue();
-                }
+
                 if (passwordObj != null && passwordObj.has("Password")) {
                     password = passwordObj.get("Password").textValue();
                 }
-                valid = PWValidator.valPass(userID, password);
+                valid = PWValidator.validBlacklist(password);
             }
             if (valid) {
                 response = mapper.writerWithDefaultPrettyPrinter()
@@ -744,49 +742,99 @@ public class UserService {
 
     }
 
+    @POST
+    @Path("/CredentialValidation")
+    @ApiOperation(value = "Check for valid Credentials in accordance to NIST", notes = "This API checks for a valid password")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success: { True/ False }"),
+            @ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }")})
+    public Response GPMSCredentialValidation(
+
+
+            @ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+        try {
+            String userID = new String();
+            String password = new String();
+            String response = new String();
+            boolean valid = false;
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(message);
+            if (root != null && root.has("passwordObj")) {
+                JsonNode passwordObj = root.get("passwordObj");
+                if (passwordObj != null && passwordObj.has("UserID")) {
+                    userID = passwordObj.get("UserID").textValue();
+                }
+                if (passwordObj != null && passwordObj.has("Password")) {
+                    password = passwordObj.get("Password").textValue();
+                }
+                valid = PWValidator.validateCredential(userID, password);
+            }
+            if (valid) {
+                response = mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString("true");
+            } else {
+                response = mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString("false");
+            }
+            return Response.status(Response.Status.OK).entity(response).build();
+
+
+        } catch (Exception e) {
+            log.error("Could not check the validity of the credentials: error e=", e);
+
+        }
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity("{\"error\": \"Could Not Check For Valid Credentials\", \"status\": \"FAIL\"}")
+                .build();
+
+
+    }
+
     private class GPMSPasswordValidation {
         public HashMap<String, String> map = new HashMap<>();
+        //String salt = "";
 
         public GPMSPasswordValidation() {
             this.map = createMap();
+
         }
 
-        //for implementation we can either call the int or the boolean method depending if we want a true/false response or a more detailed int response which
-        //explains why the password is invalid
-        public boolean valPass(String user, String pass) {
-            int code = numvalPass(user, pass);
-            return code == 0;
+
+        public boolean validateCredential(String user, String pass) {
+            if (checkSimilarity(user, pass) && validBlacklist(pass)) {
+                return true;
+            }
+            return false;
         }
 
-        //Int Outputs: 0 = valid password, 1 = too short/too long, 2 = contains invalid characters, 3 = is similar to the username, 4 = found in password blacklist
-        public int numvalPass(String user, String pass) {
+
+
+        public boolean validBlacklist(String pass) {
+            pass = pass.replaceAll("\\s+", "");
+            if (map.containsValue(pass)) {
+                return false;
+            }
+            return true;
+        }
+
+
+        public boolean checkSimilarity(String user, String pass) {
             pass = pass.replaceAll("\\s+", "");
             StringSimilarity similar = new StringSimilarity();
-            double simnum = similar.similarity(user, pass);
-            if (user.length() < 3) { //min user length will be changed in accordance to GPMS standards
-                return 1;
-            } else if (pass.length() < 8 || pass.length() > 64) {
-                return 1;
-            } else if (user.toLowerCase().trim().contains(pass.toLowerCase()) || simnum > 0.6) {
-                return 3;
+            if (similar.similarity(user,pass) > 0.7) {
+                return false;
             }
+            return true;
 
-            if (map.containsValue(pass)) {
-                return 4;
-            }
-
-            return 0;
         }
 
         private HashMap createMap() {
             HashMap<String, String> map = new HashMap<String, String>();
             try {
-                BufferedReader input = new BufferedReader(new FileReader("/Users/anthonyluo/Desktop/GPWFMS/src/main/java/gpms/rest/blacklistpassword.txt"));
-
+                BufferedReader input = new BufferedReader(new FileReader("blacklistpassword.txt"));
                 String line = "";
-                //this.salt = input.readLine();
                 while ((line = input.readLine()) != null) {
-                    //String[] arr = line.split(":");
                     if (line.length() > 7) {
                         map.put(line, line);
                     }
@@ -796,31 +844,30 @@ public class UserService {
 
             } catch (IOException e) {
                 System.out.println("File is not found");
-                e.printStackTrace();
             }
             return map;
 
         }
 
 
-        //the StringSimilarity class is the only code in this class that is not written by me.
         private class StringSimilarity {
 
             /**
              * Calculates the similarity (a number within 0 and 1) between two strings. This code is not written by me and uses the Levenshtein Edit Distance Formula
              */
             public StringSimilarity() {
+
             }
 
             public double similarity(String s1, String s2) {
                 String longer = s1, shorter = s2;
-                if (s1.length() < s2.length()) { // longer should always have greater length
+                if (s1.length() < s2.length()) {
                     longer = s2;
                     shorter = s1;
                 }
                 int longerLength = longer.length();
                 if (longerLength == 0) {
-                    return 1.0; /* both strings are zero length */
+                    return 1.0;
                 }
 
                 return (longerLength - editDistance(longer, shorter)) / (double) longerLength;

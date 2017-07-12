@@ -134,6 +134,7 @@ $(function () {
     var userNameIsUnique = false;
     var emailIsUnique = false;
     var passwordisValid = false;
+    var credentialisValid = false;
 
     signUp = {
         config: {
@@ -266,7 +267,7 @@ $(function () {
         },
 
         //Password Validation Changes added by Anthony Luo
-        isValidPassword: function (user, password){
+        isValidCredential: function (user, password){
             var passwordObj = {
                 UserID: user,
                 Password: password
@@ -276,17 +277,17 @@ $(function () {
             this.config.data = JSON2.stringify({
                 passwordObj: passwordObj
             });
-            this.config.ajaxCallMode = 4;
+            this.config.ajaxCallMode = 5;
             this.ajaxCall(this.config);
             return passwordisValid;
 
         },
 
-        checkValidPassword: function (user, password, textboxPassword) {
+        checkValidCredential: function (user, password, textboxPassword) {
             var errors = '';
             if (!textboxPassword.hasClass('error') && password.length > 0) {
-                if (!signUp.isValidPassword(user, password)) {
-                    errors += 'This password is invalid. <br> \u2022 Your password must be different from your username <br> \u2022 Your password cannot be a popular password' //the error thrown here can be ignored safely
+                if (!signUp.isValidCredential(user, password)) {
+                    errors += 'This password is invalid. Your password must be different from your username ' /
                     textboxPassword.addClass("error");
                     textboxPassword.siblings('.cssClassRight').hide();
                     if (textboxPassword.siblings('label.error').exists()) {
@@ -309,6 +310,50 @@ $(function () {
             }
             return errors;
         },
+
+        isValidPassword: function(password){
+            var passwordObj = {
+                Password: password
+
+            };
+
+            this.config.url = this.config.baseURL + "isValidCredential";
+            this.config.data = JSON2.stringify({
+                passwordObj: passwordObj
+            });
+            this.config.ajaxCallMode = 4;
+            this.ajaxCall(this.config);
+            return passwordisValid;
+        },
+
+        checkValidPassword: function (password, textboxPassword) {
+            var errors = '';
+            if (!textboxPassword.hasClass('error') && password.length > 0) {
+                if (!signUp.isValidPassword(password)) {
+                    errors += 'This password is invalid. Your password must not be a popular password'
+                    textboxPassword.addClass("error");
+                    textboxPassword.siblings('.cssClassRight').hide();
+                    if (textboxPassword.siblings('label.error').exists()) {
+                        textboxPassword.siblings('label.error').html(errors);
+                    } else {
+                        $(
+                            '<label id="txtUserName-error" class="error" for="txtUserName">'
+                            + errors + '</label>').insertAfter(
+                            textboxPassword);
+                    }
+
+                    textboxPassword.siblings('.error').show();
+                    // textBoxUserName.focus();
+                } else {
+                    textboxPassword.removeClass("error");
+                    textboxPassword.siblings('.cssClassRight').show();
+                    textboxPassword.siblings('.error').hide();
+                    textboxPassword.siblings('.error').html('');
+                }
+            }
+            return errors;
+        },
+
         // end changes
 
 
@@ -331,8 +376,15 @@ $(function () {
                 if (validateErrorMessage == "") {
                     var $password = $("#txtPassword");
                     var password = $.trim($password.val());
-                    validateErrorMessage += signUp.checkValidPassword(user_id, password, $password
+                    validateErrorMessage += signUp.checkValidPassword(password, $password
                         );
+                }
+
+                if (validateErrorMessage == "") {
+                    var $password = $("#txtPassword");
+                    var password = $.trim($password.val());
+                    validateErrorMessage += signUp.checkValidCredential(user_id, password, $password
+                    );
                 }
                 // end changes
 
@@ -415,6 +467,9 @@ $(function () {
                 case 4:
                     passwordisValid = stringToBoolean(msg);
                     break;
+                case 5:
+                    credentialisValid = stringToBoolean(msg);
+                    break;
 
             }
         },
@@ -440,6 +495,10 @@ $(function () {
                 case 4:
                     csscody.error("<h2>" + 'Error Message' + "</h2><p>"
                         + 'Cannot check if this is a valid password!' + "</p>");
+                    break;
+                case 5:
+                    csscody.error("<h2>" + 'Error Message' + "</h2><p>"
+                        + 'Cannot check if these are valid credentials!' + "</p>");
                     break;
                 //end changes
 
@@ -494,9 +553,18 @@ $(function () {
             }), $('#txtPassword').on("blur", function () {
                 var password = $.trim($(this).val());
                 var userName = $.trim($('#txtUserName').val());
-                signUp.checkValidPassword(userName, password, $(this));
+                signUp.checkValidCredential(userName, password, $(this));
                 return false;
             });
+
+            $('#txtPassword').on("focus", function () {
+                $(this).siblings('.cssClassRight').hide();
+            }), $('#txtPassword').on("blur", function () {
+                var password = $.trim($(this).val());
+                signUp.checkValidPassword(password, $(this));
+                return false;
+            });
+
             // end changes
 
             var $form = $("#form1");
