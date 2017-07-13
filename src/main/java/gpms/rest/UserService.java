@@ -695,7 +695,7 @@ public class UserService {
     }
 
     //The password Validation was added by Anthony Luo //changes start here
-    @POST
+    /*@POST
     @Path("/PasswordValidation")
     @ApiOperation(value = "Check for valid Password in accordance to NIST", notes = "This API checks for a valid password")
     @ApiResponses(value = {
@@ -718,7 +718,7 @@ public class UserService {
                 if (passwordObj != null && passwordObj.has("Password")) {
                     password = passwordObj.get("Password").textValue();
                 }
-                valid = PWValidator.validBlacklist(password);
+                valid = PWValidator.isPasswordValid(password);
             }
             if (valid) {
                 response = mapper.writerWithDefaultPrettyPrinter()
@@ -740,7 +740,7 @@ public class UserService {
                 .build();
 
 
-    }
+    }*/
 
     @POST
     @Path("/CredentialValidation")
@@ -767,7 +767,7 @@ public class UserService {
                 if (passwordObj != null && passwordObj.has("Password")) {
                     password = passwordObj.get("Password").textValue();
                 }
-                valid = PWValidator.checkSimilarity(userID, password);
+                valid = PWValidator.isCredentialValid(userID, password);
             }
             if (valid) {
                 response = mapper.writerWithDefaultPrettyPrinter()
@@ -792,47 +792,48 @@ public class UserService {
     }
 
     private class GPMSPasswordValidation {
-        public HashMap<String, String> map = new HashMap<>();
-        //String salt = "";
+        public HashMap<String, String> blacklist;
+        //String BLACKLISTFILE = System.getProperty("user.dir") + "gpms/rest/blacklistpassword.txt";
+        StringSimilarity similar = new StringSimilarity();
+
 
         public GPMSPasswordValidation() {
-            this.map = createMap();
+            this.blacklist = loadBlacklist();
+            System.out.println(System.getProperty("user.dir"));
+
 
         }
 
 
-        public boolean validateCredential(String user, String pass) {
-            if (checkSimilarity(user, pass) && validBlacklist(pass)) {
-                return true;
-            }
-            return false;
+        public boolean isCredentialValid(String user, String pass) {
+            return (!isPasswordsimilartoUsername(user, pass) && isPasswordBlacklisted(pass));
         }
 
+        public boolean isPasswordValid(String pass) {
+            return (isPasswordBlacklisted(pass));
+        }
 
-
-        public boolean validBlacklist(String pass) {
+        /*public boolean isPasswordLengthValid(String pass) {
             pass = pass.replaceAll("\\s+", "");
-            if (map.containsValue(pass)) {
-                return false;
-            }
-            return true;
-        }
+            return (pass.length() < 8 || pass.length() > 64);
+        }*/
 
-
-        public boolean checkSimilarity(String user, String pass) {
+        public boolean isPasswordBlacklisted(String pass) {
             pass = pass.replaceAll("\\s+", "");
-            StringSimilarity similar = new StringSimilarity();
-            if (similar.similarity(user,pass) > 0.7) {
-                return false;
-            }
-            return true;
+            return !(blacklist.containsValue(pass));
+        }
+
+
+        public boolean isPasswordsimilartoUsername(String user, String pass) {
+
+            return (similar.similarity(user, pass) > 0.7);
 
         }
 
-        private HashMap createMap() {
+        private HashMap loadBlacklist() {
             HashMap<String, String> map = new HashMap<String, String>();
             try {
-                BufferedReader input = new BufferedReader(new FileReader("/Users/anthonyluo/Desktop/GPWFMS/src/main/java/gpms/rest/blacklistpassword.txt"));
+                BufferedReader input = new BufferedReader(new FileReader("lmao.txt"/*BLACKLISTFILE*/));
                 String line = "";
                 while ((line = input.readLine()) != null) {
                     if (line.length() > 7) {
@@ -846,6 +847,8 @@ public class UserService {
                 System.out.println("File is not found");
             }
             return map;
+
+        }
 
         }
 
@@ -902,7 +905,7 @@ public class UserService {
                 return costs[s2.length()];
             }
         }
-    }
+
 
 
         //end changes

@@ -287,14 +287,14 @@ $(function () {
             var errors = '';
             if (!textboxPassword.hasClass('error') && password.length > 0) {
                 if (!signUp.isValidCredential(user, password)) {
-                    errors += 'This password is invalid. Your password must be different from your username ';
+                    errors += 'This password is invalid. <br> Your password is either too similar to your username or it is on a blacklist';
                     textboxPassword.addClass("error");
                     textboxPassword.siblings('.cssClassRight').hide();
                     if (textboxPassword.siblings('label.error').exists()) {
                         textboxPassword.siblings('label.error').html(errors);
                     } else {
                         $(
-                            '<label id="txtUserName-error" class="error" for="txtPassword">'
+                            '<label id="txtUserName-error" class="error" for="txtUserName">'
                             + errors + '</label>').insertAfter(
                             textboxPassword);
                     }
@@ -311,7 +311,7 @@ $(function () {
             return errors;
         },
 
-        isValidPassword: function(password){
+        /*isValidPassword: function(password){
             var passwordObj = {
                 Password: password
 
@@ -352,7 +352,7 @@ $(function () {
                 }
             }
             return errors;
-        },
+        },*/
 
         // end changes
 
@@ -376,8 +376,7 @@ $(function () {
                 if (validateErrorMessage == "") {
                     var $password = $("#txtPassword");
                     var password = $.trim($password.val());
-                    validateErrorMessage += signUp.checkValidPassword(password, $password
-                        );
+                    //validateErrorMessage += signUp.checkValidPassword(password, $password);
                     validateErrorMessage += signUp.checkValidCredential(user_id, password, $password
                     );
                 }
@@ -556,7 +555,7 @@ $(function () {
                 var password = $.trim($(this).val());
                 var userName = $.trim($('#txtUserName').val());
                 signUp.checkValidCredential(userName, password, $(this));
-                signUp.checkValidPassword(password, $(this));
+                //signUp.checkValidPassword(password, $(this));
                 return false;
             });
 
