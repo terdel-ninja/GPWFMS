@@ -741,10 +741,7 @@ public class UserService {
 					response = mapper.writerWithDefaultPrettyPrinter()
 							.writeValueAsString("blacklisted");
 					break;
-				case UNKNOWN:
-					response = mapper.writerWithDefaultPrettyPrinter()
-							.writeValueAsString("unknown");
-					break;
+
 			}
 			return Response.status(Response.Status.OK).entity(response).build();
 		} catch (Exception e) {
@@ -758,7 +755,7 @@ public class UserService {
 	}
 
 	public enum validity {
-		VALID, BLACKLISTED, SIMILAR, UNKNOWN
+		VALID, BLACKLISTED, SIMILAR
 	}
 
 	private class GPMSPasswordValidation {
@@ -774,33 +771,22 @@ public class UserService {
 
 
 		public validity isCredentialValidEnum(String user, String pass){
-			if(isCredentialValid(user, pass)){
-				return validity.VALID;
-			}
-			else if(isPasswordsimilartoUsername(user,pass)){
+			if(isPasswordsimilartoUsername(user,pass)){
 				return validity.SIMILAR;
 			}
 			else if(!isPasswordBlacklisted(pass)){
 				return validity.BLACKLISTED;
 			}
-			return validity.UNKNOWN;
+			return validity.VALID;
 		}
 
-		public boolean isCredentialValid(String user, String pass) { //used for testing
-			return (!isPasswordLengthValid(pass) && !isPasswordsimilartoUsername(user, pass) && isPasswordBlacklisted(pass));
+		public boolean isCredentialValid(String user, String pass) {
+			return (!isPasswordsimilartoUsername(user, pass) && isPasswordBlacklisted(pass));
 		}
 
-		public boolean isPasswordValid(String pass) {
-			return (!isPasswordLengthValid(pass) && isPasswordBlacklisted(pass));
-		}
-
-		public boolean isPasswordLengthValid(String pass) {
-			pass = pass.replaceAll("\\s+", "");
-			return (pass.length() < 8 || pass.length() > 64);
-		}
 
 		public boolean isPasswordBlacklisted(String pass) {
-			pass = pass.replaceAll("\\s+", "");
+			pass = pass.replaceAll("\\s+", "").toLowerCase();
 			return !(blacklist.containsValue(pass));
 		}
 

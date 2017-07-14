@@ -90,8 +90,7 @@ $(function () {
                     password: {
                         required: "Please provide a password",
                         minlength: "Your password must be between 8 and 64 characters",
-                        maxlength: "Your password must be between 8 and 64 characters",
-                        noSpace: "Password cannot contain spaces"
+                        maxlength: "Your password must be between 8 and 64 characters", //Removed no spaces requirement
                     },
                     confirm_password: {
                         required: "Please confirm your password",
@@ -322,43 +321,10 @@ $(function () {
                         }
                         textboxPassword.siblings('.error').show();
                         break;
-                    case "unknown":
-                        errors += 'This password is invalid because of an unknown reason';
-                        textboxPassword.siblings('.cssClassRight').hide();
-                        if (textboxPassword.siblings('label.error').exists()) {
-                            textboxPassword.siblings('label.error').html(errors);
-                        } else {
-                            $(
-                                '<label id="txtUserName-error" class="error" for="txtUserName">'
-                                + errors + '</label>').insertAfter(
-                                textboxPassword);
-                        }
-                        textboxPassword.siblings('.error').show();
-                        break;
+
                 }
             }
 
-                /*if (signUp.isValidPassword(user, password)) {
-                    errors += 'This password is invalid. <br> \u2022 Your password must be different from your username <br> \u2022 Your password cannot be a popular password' //the error thrown here can be ignored safely
-                    textboxPassword.addClass("error");
-                    textboxPassword.siblings('.cssClassRight').hide();
-                    if (textboxPassword.siblings('label.error').exists()) {
-                        textboxPassword.siblings('label.error').html(errors);
-                    } else {
-                        $(
-                            '<label id="txtUserName-error" class="error" for="txtUserName">'
-                            + errors + '</label>').insertAfter(
-                            textboxPassword);
-                    }
-
-                    textboxPassword.siblings('.error').show();
-                } else {
-                    textboxPassword.removeClass("error");
-                    textboxPassword.siblings('.cssClassRight').show();
-                    textboxPassword.siblings('.error').hide();
-                    textboxPassword.siblings('.error').html('');
-                }
-            }*/
             return errors;
         },
 
