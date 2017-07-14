@@ -97,13 +97,13 @@ $(function() {
 							},
 							password : {
 								required : true,
-								minlength : 6,
-								maxlength : 15
+								minlength : 8,
+								maxlength : 64
 							},
 							confirm_password : {
 								required : true,
-								minlength : 6,
-								maxlength : 15,
+								minlength : 8,
+								maxlength : 64,
 								equalTo : "#txtPassword"
 							}
 						},
@@ -157,13 +157,13 @@ $(function() {
 							},
 							password : {
 								required : "Please provide a password",
-								minlength : "Your password must be between 6 and 15 characters",
-								maxlength : "Your password must be between 6 and 15 characters"
+								minlength : "Your password must be between 8 and 64 characters",
+								maxlength : "Your password must be between 8 and 64 characters"
 							},
 							confirm_password : {
 								required : "Please confirm your password",
-								minlength : "Your password must be between 6 and 15 characters",
-								maxlength : "Your password must be between 6 and 15 characters",
+								minlength : "Your password must be between 8 and 64 characters",
+								maxlength : "Your password must be between 8 and 64 characters",
 								equalTo : "Please enter the same password as above"
 							}
 						}
@@ -1254,12 +1254,12 @@ $(function() {
 							"add",
 							{
 								required : true,
-								minlength : 6,
-								maxlength : 15,
+								minlength : 8,
+								maxlength : 64,
 								messages : {
 									required : "Please provide a password",
-									minlength : "Your password must be between 6 and 15 characters",
-									maxlength : "Your password must be between 6 and 15 characters"
+									minlength : "Your password must be between 6 and 64 characters",
+									maxlength : "Your password must be between 8 and 64 characters"
 								}
 							});
 			$("#txtConfirmPassword")
@@ -1267,13 +1267,13 @@ $(function() {
 							"add",
 							{
 								required : true,
-								minlength : 6,
-								maxlength : 15,
+								minlength : 8,
+								maxlength : 64,
 								equalTo : "#txtPassword",
 								messages : {
 									required : "Please confirm your password",
-									minlength : "Your password must be between 6 and 15 characters",
-									maxlength : "Your password must be between 6 and 15 characters",
+									minlength : "Your password must be between 8 and 64 characters",
+									maxlength : "Your password must be between 8 and 64 characters",
 									equalTo : "Please enter the same password as above"
 								}
 							});

@@ -26,7 +26,10 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -87,6 +90,7 @@ public class UserService {
 	private final int MAX_CITY_LENGTH = 40;
 	private final int MAX_STATE_LENGTH = 40;
 	private final int MAX_COUNTRY_LENGTH = 40;
+	GPMSPasswordValidation PWValidator = new GPMSPasswordValidation();
 
 	public UserService() {
 		mongoClient = MongoDBConnector.getMongo();
@@ -696,8 +700,144 @@ public class UserService {
 				.entity("{\"error\": \"Could Not Check For Unique Username\", \"status\": \"FAIL\"}")
 				.build();
 	}
-
+	//Author: Anthony Luo
+	//Checks password for conformance to 2017 NIST Standards
 	@POST
+	@Path("/CheckValidCredential")
+	@ApiOperation(value = "Checks for Valid Credentials (Username and password)", notes = "This API checks for valid credentials")
+	@ApiResponses(value = {
+			@ApiResponse(code = 200, message = "Success: { True/ False }"),
+			@ApiResponse(code = 400, message = "Failed: { \"error\":\"error description\", \"status\": \"FAIL\" }") })
+	public Response checkValidCredential(
+			@ApiParam(value = "Message", required = true, defaultValue = "", allowableValues = "", allowMultiple = false) String message) {
+		try {
+			log.info("UserService::checkValidCredential started");
+			String userName ="";
+			String password = "";
+			String response = new String();
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode root = mapper.readTree(message);
+			if (root != null && root.has("passwordObj")) {
+				JsonNode passwordObj = root.get("passwordObj");
+				if (passwordObj != null && passwordObj.has("UserName")) {
+					userName = passwordObj.get("UserName").textValue();
+				}
+				if (passwordObj != null && passwordObj.has("Password")) {
+					password = passwordObj.get("Password").textValue();
+				}
+			}
+			validity returncode = PWValidator.isCredentialValidEnum(userName,password);
+
+			switch(returncode){
+				case VALID:
+					response = mapper.writerWithDefaultPrettyPrinter()
+							.writeValueAsString("valid");
+					break;
+				case SIMILAR:
+					response = mapper.writerWithDefaultPrettyPrinter()
+							.writeValueAsString("similar");
+					break;
+				case BLACKLISTED:
+					response = mapper.writerWithDefaultPrettyPrinter()
+							.writeValueAsString("blacklisted");
+					break;
+				case UNKNOWN:
+					response = mapper.writerWithDefaultPrettyPrinter()
+							.writeValueAsString("unknown");
+					break;
+			}
+			return Response.status(Response.Status.OK).entity(response).build();
+		} catch (Exception e) {
+			//e.printStackTrace();
+			log.error("Could not check for valid credentials error e=", e);
+		}
+		return Response
+				.status(Response.Status.BAD_REQUEST)
+				.entity("{\"error\": \"Could Not Check for Valid Credentials\", \"status\": \"FAIL\"}")
+				.build();
+	}
+
+	public enum validity {
+		VALID, BLACKLISTED, SIMILAR, UNKNOWN
+	}
+
+	private class GPMSPasswordValidation {
+		public HashMap<String, String> blacklist;
+		final String BLACKLISTFILE = "/Users/anthonyluo/Desktop/GPWFMS/src/main/java/gpms/blacklistpassword.txt";
+		StringSimilarity similar = new StringSimilarity();
+
+
+
+		public GPMSPasswordValidation() {
+			this.blacklist = loadBlacklist();
+		}
+
+
+		public validity isCredentialValidEnum(String user, String pass){
+			if(isCredentialValid(user, pass)){
+				return validity.VALID;
+			}
+			else if(isPasswordsimilartoUsername(user,pass)){
+				return validity.SIMILAR;
+			}
+			else if(!isPasswordBlacklisted(pass)){
+				return validity.BLACKLISTED;
+			}
+			return validity.UNKNOWN;
+		}
+
+		public boolean isCredentialValid(String user, String pass) { //used for testing
+			return (!isPasswordLengthValid(pass) && !isPasswordsimilartoUsername(user, pass) && isPasswordBlacklisted(pass));
+		}
+
+		public boolean isPasswordValid(String pass) {
+			return (!isPasswordLengthValid(pass) && isPasswordBlacklisted(pass));
+		}
+
+		public boolean isPasswordLengthValid(String pass) {
+			pass = pass.replaceAll("\\s+", "");
+			return (pass.length() < 8 || pass.length() > 64);
+		}
+
+		public boolean isPasswordBlacklisted(String pass) {
+			pass = pass.replaceAll("\\s+", "");
+			return !(blacklist.containsValue(pass));
+		}
+
+
+		public boolean isPasswordsimilartoUsername(String user, String pass) {
+
+			return (similar.similarity(user, pass) > 0.7);
+
+		}
+
+		private HashMap loadBlacklist() {
+			HashMap<String, String> map = new HashMap<String, String>();
+			try {
+				BufferedReader input = new BufferedReader(new FileReader(BLACKLISTFILE));
+				String line = "";
+				while ((line = input.readLine()) != null) {
+					if (line.length() > 7) {
+						map.put(line, line);
+					}
+
+				}
+				input.close();
+
+			} catch (IOException e) {
+				System.out.println("File is not found");
+			}
+			return map;
+
+		}
+	}
+
+	//End Changes
+
+
+
+
+		@POST
 	@Path("/CheckUniqueEmail")
 	@ApiOperation(value = "Check for Unique Email Address", notes = "This API checks for unique Email Address")
 	@ApiResponses(value = {

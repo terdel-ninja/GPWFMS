@@ -147,17 +147,23 @@ Patrick Chapman 3/16/17--%>
 					<div class="form__item">
 						<label class="form__label label" for="txtPassword">
 							Password <span class="cssClassRequired">*</span>
-							<div class="label__description">At least 6 and at most 15
+							<div class="label__description">At least 8 and at most 64
 								characters, please</div>
-						</label> <input class="form__input input" id="txtPassword"
-							placeholder="Password" name="password" title="Password"
-							type="password">
+					<%--  Author: Anthony Luo | Changes: Added checkmark for valid password --%>
+					</label> <input class="form__input input" id="txtPassword"
+									placeholder="Password" name="password" title="Password"
+									type="password"><span
+						style="display: none;" class="cssClassRight"> <img
+						src="./images/right.jpg" class="cssClassSuccessImg" alt="Right"
+						title="Right" height="13" width="18">
+												</span>
 					</div>
+					<%-- end changes --%>
 
 					<div class="form__item">
 						<label class="form__label label" for="txtConfirmPassword">
 							Confirm Password <span class="cssClassRequired">*</span>
-							<div class="label__description">At least 6 and at most 15
+							<div class="label__description">At least 8 and at most 64
 								characters, please</div>
 						</label> <input class="form__input input" id="txtConfirmPassword"
 							placeholder="Password (Again)" name="confirm_password"
