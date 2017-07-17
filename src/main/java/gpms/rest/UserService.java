@@ -726,6 +726,16 @@ public class UserService {
 					password = passwordObj.get("Password").textValue();
 				}
 			}
+			log.info("ValidCredential::FilePath Location Started");
+			String filepath = new String();
+			try{
+				filepath = this.getClass().getResource("/Blacklist").toURI().getPath();
+			}
+			catch(URISyntaxException e){
+				e.printStackTrace();
+			}
+			PWValidator.setFilePath(filepath);
+
 			validity returncode = PWValidator.isCredentialValidEnum(userName,password);
 
 			switch(returncode){
@@ -760,13 +770,21 @@ public class UserService {
 
 	private class GPMSPasswordValidation {
 		public HashMap<String, String> blacklist;
-		final String BLACKLISTFILE = "/Users/anthonyluo/Desktop/GPWFMS/src/main/java/gpms/blacklistpassword.txt";
+		String BLACKLISTFILE = new String();
+		boolean blacklistparsed = false;
+		private final String BLACKLISTNAME = "blacklistpassword.txt";
 		StringSimilarity similar = new StringSimilarity();
 
 
 
 		public GPMSPasswordValidation() {
-			this.blacklist = loadBlacklist();
+		}
+
+		public void setFilePath(String filepath){
+			BLACKLISTFILE = filepath + BLACKLISTNAME;
+			if(!blacklistparsed){
+				this.blacklist = loadBlacklist();
+			}
 		}
 
 
@@ -780,10 +798,6 @@ public class UserService {
 			return validity.VALID;
 		}
 
-		public boolean isCredentialValid(String user, String pass) {
-			return (!isPasswordsimilartoUsername(user, pass) && isPasswordBlacklisted(pass));
-		}
-
 
 		public boolean isPasswordBlacklisted(String pass) {
 			pass = pass.replaceAll("\\s+", "").toLowerCase();
@@ -792,9 +806,7 @@ public class UserService {
 
 
 		public boolean isPasswordsimilartoUsername(String user, String pass) {
-
 			return (similar.similarity(user, pass) > 0.7);
-
 		}
 
 		private HashMap loadBlacklist() {
@@ -809,6 +821,7 @@ public class UserService {
 
 				}
 				input.close();
+				blacklistparsed = true;
 
 			} catch (IOException e) {
 				System.out.println("File is not found");
@@ -818,7 +831,7 @@ public class UserService {
 		}
 	}
 
-	//End Changes
+	//end changes
 
 
 
