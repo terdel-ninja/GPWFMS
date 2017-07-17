@@ -100,6 +100,21 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	private static Datastore ds;
 	private AuditLog audit = new AuditLog();
 	private DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+	//Author: Patrick Chapman
+	//Added validation variables and replaced
+	//old method of XSS prevention with new method
+	//that throws ValidationException whenever
+	//illegal character is passed through user input.
+	private UserInputValidator inputValidator = new UserInputValidator();
+	private final int MAX_NUM_LENGTH = 15;
+	private final int MAX_AGENCY_LIST_LENGTH = 50;
+	private final int MAX_NAME_LIST = 50;
+	private final int MAX_PAGES_LENGTH = 50;
+	private final int MAX_SIGN_LENGTH = 45;
+	private final int MAX_TITLE_LENGTH = 250;
+	private final int MAX_NOTE_LENGTH = 180;
+	private final int MAX_DATE_LENGTH = 35;
+	//End Patrick Code
 
 	private static Morphia getMorphia() throws UnknownHostException,
 			MongoException {
@@ -1877,8 +1892,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	public void getProposalTitle(Proposal existingProposal, String proposalID,
 			ProjectInfo newProjectInfo, JsonNode projectInfo) throws Exception {
 		if (projectInfo != null && projectInfo.has("ProjectTitle")) {
-			final String proposalTitle = projectInfo.get("ProjectTitle")
-					.textValue().trim().replaceAll("\\<[^>]*>", "");
+			final String proposalTitle = projectInfo.get("ProjectTitle").textValue().trim();
+			inputValidator.validateInput(proposalTitle, MAX_TITLE_LENGTH);
 			if (validateNotEmptyValue(proposalTitle)) {
 				if (!proposalID.equals("0")) {
 					if (!existingProposal.getProjectInfo().getProjectTitle()
@@ -2027,7 +2042,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			throws ParseException, Exception {
 		if (projectInfo != null && projectInfo.has("DueDate")) {
 			Date dueDate = formatter.parse(projectInfo.get("DueDate")
-					.textValue().trim().replaceAll("\\<[^>]*>", ""));
+					.textValue().trim());
+			inputValidator.validateDateInput(dueDate.toString(), MAX_DATE_LENGTH);
 			if (validateNotEmptyValue(dueDate.toString())) {
 				if (!proposalID.equals("0")) {
 					if (!existingProposal.getProjectInfo().getDueDate()
@@ -2059,8 +2075,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 		ProjectPeriod projectPeriod = new ProjectPeriod();
 		if (projectInfo != null && projectInfo.has("ProjectPeriodFrom")) {
 			Date periodFrom = formatter.parse(projectInfo
-					.get("ProjectPeriodFrom").textValue().trim()
-					.replaceAll("\\<[^>]*>", ""));
+					.get("ProjectPeriodFrom").textValue().trim());
+			inputValidator.validateDateInput(periodFrom.toString(), MAX_DATE_LENGTH);
 			if (validateNotEmptyValue(periodFrom.toString())) {
 				projectPeriod.setFrom(periodFrom);
 			} else {
@@ -2069,7 +2085,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 		}
 		if (projectInfo != null && projectInfo.has("ProjectPeriodTo")) {
 			Date periodTo = formatter.parse(projectInfo.get("ProjectPeriodTo")
-					.textValue().trim().replaceAll("\\<[^>]*>", ""));
+					.textValue().trim());
+			inputValidator.validateDateInput(periodTo.toString(), MAX_DATE_LENGTH);
 			if (validateNotEmptyValue(periodTo.toString())) {
 				projectPeriod.setTo(periodTo);
 			} else {
@@ -2137,8 +2154,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			if (sponsorAndBudgetInfo != null
 					&& sponsorAndBudgetInfo.has("GrantingAgency")) {
 				for (String grantingAgency : sponsorAndBudgetInfo
-						.get("GrantingAgency").textValue().trim()
-						.replaceAll("\\<[^>]*>", "").split(", ")) {
+						.get("GrantingAgency").textValue().split(", ")) {
+					inputValidator.validateInput(grantingAgency, MAX_AGENCY_LIST_LENGTH);
 					if (validateNotEmptyValue(grantingAgency)) {
 						newSponsorAndBudgetInfo.getGrantingAgency().add(
 								grantingAgency);
@@ -2151,8 +2168,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			if (sponsorAndBudgetInfo != null
 					&& sponsorAndBudgetInfo.has("DirectCosts")) {
 				final String directCost = sponsorAndBudgetInfo
-						.get("DirectCosts").textValue().trim()
-						.replaceAll("\\<[^>]*>", "");
+						.get("DirectCosts").textValue().trim();
+				inputValidator.validateNumberInput(directCost, MAX_NUM_LENGTH);
 				if (validateNotEmptyValue(directCost)) {
 					newSponsorAndBudgetInfo.setDirectCosts(Double
 							.parseDouble(directCost));
@@ -2163,7 +2180,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			if (sponsorAndBudgetInfo != null
 					&& sponsorAndBudgetInfo.has("FACosts")) {
 				final String FACosts = sponsorAndBudgetInfo.get("FACosts")
-						.textValue().trim().replaceAll("\\<[^>]*>", "");
+						.textValue().trim();
+				inputValidator.validateNumberInput(FACosts, MAX_NUM_LENGTH);
 				if (validateNotEmptyValue(FACosts)) {
 					newSponsorAndBudgetInfo.setFaCosts(Double
 							.parseDouble(FACosts));
@@ -2174,8 +2192,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			if (sponsorAndBudgetInfo != null
 					&& sponsorAndBudgetInfo.has("TotalCosts")) {
 				final String totalCosts = sponsorAndBudgetInfo
-						.get("TotalCosts").textValue().trim()
-						.replaceAll("\\<[^>]*>", "");
+						.get("TotalCosts").textValue().trim();
+				inputValidator.validateNumberInput(totalCosts, MAX_NUM_LENGTH);
 				if (validateNotEmptyValue(totalCosts)) {
 					newSponsorAndBudgetInfo.setTotalCosts(Double
 							.parseDouble(totalCosts));
@@ -2186,7 +2204,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			if (sponsorAndBudgetInfo != null
 					&& sponsorAndBudgetInfo.has("FARate")) {
 				final String FARate = sponsorAndBudgetInfo.get("FARate")
-						.textValue().trim().replaceAll("\\<[^>]*>", "");
+						.textValue().trim();
+				inputValidator.validateInput(FARate, MAX_NUM_LENGTH);
 				if (validateNotEmptyValue(FARate)) {
 					newSponsorAndBudgetInfo.setFaRate(Double
 							.parseDouble(FARate));
@@ -2482,8 +2501,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 					if (collaborationInfo != null
 							&& collaborationInfo.has("Collaborators")) {
 						final String collabarationName = collaborationInfo
-								.get("Collaborators").textValue().trim()
-								.replaceAll("\\<[^>]*>", "");
+								.get("Collaborators").textValue().trim();
+						inputValidator.validateInput(collabarationName, MAX_NAME_LIST);
 						if (validateNotEmptyValue(collabarationName)) {
 							newCollaborationInfo
 									.setInvolvedCollaborators(collabarationName);
@@ -2534,7 +2553,9 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 					if (confidentialInfo != null
 							&& confidentialInfo.has("OnPages")) {
 						final String onPages = confidentialInfo.get("OnPages")
-								.textValue().trim().replaceAll("\\<[^>]*>", "");
+								.textValue().trim();
+						inputValidator.validateNumberInput(onPages, MAX_PAGES_LENGTH);
+						System.out.println(onPages);
 						if (validateNotEmptyValue(onPages)) {
 							newConfidentialInfo.setOnPages(onPages);
 						} else {
@@ -2659,8 +2680,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			throws Exception {
 		// List Agency
 		if (oSPSectionInfo != null && oSPSectionInfo.has("ListAgency")) {
-			String agencies = oSPSectionInfo.get("ListAgency").textValue()
-					.trim().replaceAll("\\<[^>]*>", "");
+			String agencies = oSPSectionInfo.get("ListAgency").textValue();
+			inputValidator.validateInput(agencies, MAX_AGENCY_LIST_LENGTH);
 			if (validateNotEmptyValue(agencies)) {
 				if (!existingProposal.getOspSectionInfo().getListAgency()
 						.equals(agencies)) {
@@ -2775,8 +2796,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 		}
 		if (oSPSectionInfo != null && oSPSectionInfo.has("PISalary")) {
 			// PI Salary
-			String PISalary = oSPSectionInfo.get("PISalary").textValue().trim()
-					.replaceAll("\\<[^>]*>", "");
+			String PISalary = oSPSectionInfo.get("PISalary").textValue();
+			inputValidator.validateNumberInput(PISalary, MAX_NUM_LENGTH);
 			if (validateNotEmptyValue(PISalary)) {
 				if (existingProposal.getOspSectionInfo().getPiSalary() != Double
 						.parseDouble(PISalary)) {
@@ -2789,8 +2810,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 		}
 		if (oSPSectionInfo != null && oSPSectionInfo.has("PIFringe")) {
 			// PI Fringe
-			String PiFringe = oSPSectionInfo.get("PIFringe").textValue().trim()
-					.replaceAll("\\<[^>]*>", "");
+			String PiFringe = oSPSectionInfo.get("PIFringe").textValue();
+			inputValidator.validateNumberInput(PiFringe, MAX_NUM_LENGTH);
 			if (validateNotEmptyValue(PiFringe)) {
 				if (existingProposal.getOspSectionInfo().getPiFringe() != Double
 						.parseDouble(PiFringe)) {
@@ -2803,8 +2824,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 		}
 		if (oSPSectionInfo != null && oSPSectionInfo.has("DepartmentId")) {
 			// Department Id
-			String departmentId = oSPSectionInfo.get("DepartmentId")
-					.textValue().trim().replaceAll("\\<[^>]*>", "");
+			String departmentId = oSPSectionInfo.get("DepartmentId").textValue();
+			inputValidator.validateNumberInput(departmentId, MAX_NUM_LENGTH);
 			if (validateNotEmptyValue(departmentId)) {
 				if (!existingProposal.getOspSectionInfo().getDepartmentId()
 						.equals(departmentId)) {
@@ -2828,8 +2849,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 			JsonNode oSPSectionInfo) throws Exception {
 		// CFDA No
 		if (oSPSectionInfo != null && oSPSectionInfo.has("CFDANo")) {
-			String CFDANo = oSPSectionInfo.get("CFDANo").textValue().trim()
-					.replaceAll("\\<[^>]*>", "");
+			String CFDANo = oSPSectionInfo.get("CFDANo").textValue();
+			inputValidator.validateNumberInput(CFDANo, MAX_NUM_LENGTH);
 			if (validateNotEmptyValue(CFDANo)) {
 				if (!existingProposal.getOspSectionInfo().getCfdaNo()
 						.equals(CFDANo)) {
@@ -2842,8 +2863,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 
 		// Program No
 		if (oSPSectionInfo != null && oSPSectionInfo.has("ProgramNo")) {
-			String programNo = oSPSectionInfo.get("ProgramNo").textValue()
-					.trim().replaceAll("\\<[^>]*>", "");
+			String programNo = oSPSectionInfo.get("ProgramNo").textValue();
+			inputValidator.validateNumberInput(programNo, MAX_NUM_LENGTH);
 			if (validateNotEmptyValue(programNo)) {
 				if (!existingProposal.getOspSectionInfo().getProgramNo()
 						.equals(programNo)) {
@@ -2857,8 +2878,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 
 		// Program Title
 		if (oSPSectionInfo != null && oSPSectionInfo.has("ProgramTitle")) {
-			String programTitle = oSPSectionInfo.get("ProgramTitle")
-					.textValue().trim().replaceAll("\\<[^>]*>", "");
+			String programTitle = oSPSectionInfo.get("ProgramTitle").textValue();
+			inputValidator.validateInput(programTitle, MAX_TITLE_LENGTH);
 			if (validateNotEmptyValue(programTitle)) {
 				if (!existingProposal.getOspSectionInfo().getProgramTitle()
 						.equals(programTitle)) {
@@ -2948,8 +2969,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 				if (oSPSectionInfo != null
 						&& oSPSectionInfo.has("AnticipatedSubRecipientsNames")) {
 					final String anticipatedSubRecipients = oSPSectionInfo
-							.get("AnticipatedSubRecipientsNames").textValue()
-							.trim().replaceAll("\\<[^>]*>", "");
+							.get("AnticipatedSubRecipientsNames").textValue();
+					inputValidator.validateInput(anticipatedSubRecipients, MAX_NAME_LIST);
 					if (validateNotEmptyValue(anticipatedSubRecipients)) {
 						newOSPSectionInfo
 								.setAnticipatedSubRecipientsNames(anticipatedSubRecipients);
@@ -3111,7 +3132,7 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	public void getAppendixDetails(String proposalId,
 			Proposal existingProposal, Proposal oldProposal,
 			JsonNode proposalInfo) throws IOException, JsonParseException,
-			JsonMappingException {
+			JsonMappingException, Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		// Appendix Info
 		if (proposalInfo != null && proposalInfo.has("AppendixInfo")) {
@@ -3131,6 +3152,9 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 					boolean alreadyExist = false;
 					for (Appendix appendix : oldProposal.getAppendices()) {
 						for (Appendix appendixObj : appendixInfo) {
+							inputValidator.validateInput(appendix.getFilename()
+									, MAX_NAME_LIST);
+							
 							if (appendix.getFilename().equalsIgnoreCase(
 									appendixObj.getFilename())
 									&& appendix
@@ -3138,10 +3162,7 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 											.equalsIgnoreCase(
 													appendixObj
 															.getTitle()
-															.trim()
-															.replaceAll(
-																	"\\<[^>]*>",
-																	""))) {
+															.trim())) {
 								alreadyExist = true;
 								existingFiles.add(appendixObj.getFilename());
 								break;
@@ -3177,8 +3198,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 										.build();
 							}
 							uploadFile.setFilepath("/uploads/" + fileName);
-							String fileTitle = uploadFile.getTitle().trim()
-									.replaceAll("\\<[^>]*>", "");
+							String fileTitle = uploadFile.getTitle().trim();
+							inputValidator.validateInput(fileTitle, MAX_NAME_LIST);
 							if (validateNotEmptyValue(fileTitle)) {
 								uploadFile.setTitle(fileTitle);
 							} else {
@@ -3216,8 +3237,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 						}
 						uploadFile.setFilesize(fileSize);
 						uploadFile.setFilepath("/uploads/" + fileName);
-						String fileTitle = uploadFile.getTitle().trim()
-								.replaceAll("\\<[^>]*>", "");
+						String fileTitle = uploadFile.getTitle().trim();
+						inputValidator.validateInput(fileTitle, MAX_NAME_LIST);
 						if (validateNotEmptyValue(fileTitle)) {
 							uploadFile.setTitle(fileTitle);
 						} else {
@@ -3264,23 +3285,24 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 				SignatureInfo signatureInfo = new SignatureInfo();
 				signatureInfo.setUserProfileId(cols[0]);
 				
-				final String signatureText = cols[1]
-						.replaceAll("\\<[^>]*>", "");
+				final String signatureText = cols[1];
+				inputValidator.validateInput(signatureText, MAX_SIGN_LENGTH);
 				if (validateNotEmptyValue(signatureText)) {
 					signatureInfo.setSignature(signatureText);
 				} else {
 					Response.status(403)
 							.entity("The Signature can not be Empty").build();
 				}
-				final String signedDate = cols[2].trim().replaceAll(
-						"\\<[^>]*>", "");
+				final String signedDate = cols[2].trim();
+				inputValidator.validateDateInput(signedDate, MAX_DATE_LENGTH);
 				if (validateNotEmptyValue(signedDate)) {
 					signatureInfo.setSignedDate(format.parse(signedDate));
 				} else {
 					Response.status(403)
 							.entity("The Signed Date can not be Empty").build();
 				}
-				final String noteText = cols[3].replaceAll("\\<[^>]*>", "");
+				final String noteText = cols[3];
+				inputValidator.validateInput(noteText, MAX_NOTE_LENGTH);
 				if (validateNotEmptyValue(noteText)) {
 					signatureInfo.setNote(noteText);
 				} else {
@@ -3342,7 +3364,7 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	 */
 	public Boolean getInvolveUseOfHumanSubjectsInfo(
 			ComplianceInfo newComplianceInfo, Boolean irbApprovalRequired,
-			JsonNode complianceInfo) {
+			JsonNode complianceInfo) throws Exception{
 		if (complianceInfo != null
 				&& complianceInfo.has("InvolveUseOfHumanSubjects")) {
 			switch (complianceInfo.get("InvolveUseOfHumanSubjects").textValue()) {
@@ -3355,8 +3377,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 						newComplianceInfo.setIrbPending(false);
 						if (complianceInfo != null && complianceInfo.has("IRB")) {
 							final String IRBNo = complianceInfo.get("IRB")
-									.textValue().trim()
-									.replaceAll("\\<[^>]*>", "");
+									.textValue().trim();
+							inputValidator.validateNumberInput(IRBNo, MAX_NUM_LENGTH);
 							if (validateNotEmptyValue(IRBNo)) {
 								newComplianceInfo.setIrb(IRBNo);
 							} else {
@@ -3394,7 +3416,7 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	 */
 	public Boolean getInvolveUseOfVertebrateAnimalsInfo(
 			ComplianceInfo newComplianceInfo, Boolean irbApprovalRequired,
-			JsonNode complianceInfo) {
+			JsonNode complianceInfo) throws Exception{
 		if (complianceInfo != null
 				&& complianceInfo.has("InvolveUseOfVertebrateAnimals")) {
 			switch (complianceInfo.get("InvolveUseOfVertebrateAnimals")
@@ -3410,8 +3432,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 						if (complianceInfo != null
 								&& complianceInfo.has("IACUC")) {
 							final String IACUCNo = complianceInfo.get("IACUC")
-									.textValue().trim()
-									.replaceAll("\\<[^>]*>", "");
+									.textValue().trim();
+							inputValidator.validateNumberInput(IACUCNo, MAX_NUM_LENGTH);
 							if (validateNotEmptyValue(IACUCNo)) {
 								newComplianceInfo.setIacuc(IACUCNo);
 							} else {
@@ -3446,10 +3468,11 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	 * @param irbApprovalRequired
 	 * @param complianceInfo
 	 * @return
+	 * @throws Exception 
 	 */
 	public Boolean getInvolveBiosafetyConcernsInfo(
 			ComplianceInfo newComplianceInfo, Boolean irbApprovalRequired,
-			JsonNode complianceInfo) {
+			JsonNode complianceInfo) throws Exception {
 		if (complianceInfo != null
 				&& complianceInfo.has("InvolveBiosafetyConcerns")) {
 			switch (complianceInfo.get("InvolveBiosafetyConcerns").textValue()) {
@@ -3462,8 +3485,8 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 						newComplianceInfo.setIbcPending(false);
 						if (complianceInfo != null && complianceInfo.has("IBC")) {
 							final String IBCNo = complianceInfo.get("IBC")
-									.textValue().trim()
-									.replaceAll("\\<[^>]*>", "");
+									.textValue().trim();
+							inputValidator.validateNumberInput(IBCNo, MAX_NUM_LENGTH);
 
 							if (validateNotEmptyValue(IBCNo)) {
 								newComplianceInfo.setIbc(IBCNo);
@@ -3533,7 +3556,7 @@ public class ProposalDAO extends BasicDAO<Proposal, String> {
 	 * @return
 	 */
 	public Boolean getComplianceDetails(String proposalId,
-			Proposal existingProposal, JsonNode proposalInfo) {
+			Proposal existingProposal, JsonNode proposalInfo) throws Exception {
 		ComplianceInfo newComplianceInfo = new ComplianceInfo();
 		Boolean irbApprovalRequired = false;
 		if (proposalInfo != null && proposalInfo.has("ComplianceInfo")) {

@@ -773,7 +773,7 @@ public class UserService {
 				//for now.
 				
 				//validate user name
-				inputValidator.validateInput(userInfo.get("UserName").textValue(), MAX_USERNAME_LENGTH);
+				inputValidator.validateUsernameInput(userInfo.get("UserName").textValue(), MAX_USERNAME_LENGTH);
 				//validate first name
 				inputValidator.validateInput(userInfo.get("FirstName").textValue(), MAX_NAME_LENGTH);
 				//validate last name

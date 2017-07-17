@@ -89,10 +89,8 @@ public class ProposalService {
 	public DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 	private static final Logger log = Logger.getLogger(ProposalService.class
 			.getName());
-	private final int MAX_NUM_SIGN_CH = 45;
-	private final int MAX_NUM_NOTE_CH = 180;
-	private final int MAX_NUM_TITLE_CH = 45;
-	private final int MAX_SIG_INFO_LENGTH = 7;
+	
+	
 
 	public ProposalService() {
 		mongoClient = MongoDBConnector.getMongo();
@@ -1096,23 +1094,8 @@ public class ProposalService {
 				//if(userSigInfo.size() > MAX_SIG_INFO_LENGTH){
 				//	throw new Exception("Signature information has been illegally tampered with!");
 				//}
-				System.out.println("sigs: " + userSigInfo.toString());
-				String projectTitleInfo = proposalInfo.get("ProjectInfo").get("ProjectTitle").textValue();
-				String sponsorInfo = proposalInfo
-										.get("SponsorAndBudgetInfo").get("GrantingAgency").textValue();
-				
-				//Currently cannot just cycle through every piece of information considering that the
-				//types of input needs to be different for separate sections.
-				
-				//validates signature field
-				inputValidator.validateInput(userSigInfo.get(1), MAX_NUM_SIGN_CH);
-				//validates signature note field
-				inputValidator.validateInput(userSigInfo.get(3), MAX_NUM_NOTE_CH);
-				//validate project title
-				inputValidator.validateInput(projectTitleInfo, MAX_NUM_TITLE_CH);
-				//validate sponsor name
-				inputValidator.validateInput(sponsorInfo, MAX_NUM_NOTE_CH);
-				//End of Patrick Code
+
+			
 				
 				if (proposalInfo != null && proposalInfo.has("ProposalID")) {
 					proposalId = proposalInfo.get("ProposalID").textValue();
@@ -1610,6 +1593,7 @@ public class ProposalService {
 		boolean proposalIsChanged = false;
 		if (root != null && root.has("proposalInfo")) {
 			proposalInfo = root.get("proposalInfo");
+			System.out.println(root.textValue());
 			//Adding user access validation
 			//I have a feeling that this can be exploited by manipulating
 			//JSON object that is sent back to the server.
@@ -1617,7 +1601,6 @@ public class ProposalService {
 			
 			//Grabs the current user's role in the proposal
 			JsonNode  proposalRole = root.get("proposalRoles");
-			System.out.println("Hello: " + proposalRole.textValue());
 			if(proposalRole.textValue().equals("PI") ||
 				proposalRole.textValue().equals("")){ // "" for when proposal is first created
 				//End of Patrick code	
@@ -1749,5 +1732,29 @@ public class ProposalService {
 						oldProposal, addedInvestigators, deletedInvestigators);
 			}
 		}
+		
+	}
+}
+
+class UserProposalAccessRules{
+	private static UserProposalAccessRules rules = null;
+	HashMap<String, ArrayList<String>> userPermissions;
+	private UserProposalAccessRules(){
+		generateHashMap();
+	}
+	
+	public static UserProposalAccessRules generateRules(){
+		if(rules == null){
+			rules = new UserProposalAccessRules();
+		}
+		return rules;
+	}
+	
+	private void generateHashMap(){
+		BalanaConnector balana = new BalanaConnector();
+	}
+	
+	public HashMap<String, ArrayList<String>> getHashMap(){
+		return userPermissions;
 	}
 }

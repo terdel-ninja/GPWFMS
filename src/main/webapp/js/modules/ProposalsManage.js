@@ -229,7 +229,8 @@ $(function() {
 								maxlength : 15
 							},
 							programTitle : {
-								required : true
+								required : true,
+								maxlength : 250
 							},
 							PISalaryIncluded : {
 								required : true
@@ -417,7 +418,8 @@ $(function() {
 								maxlength : "Program No. must be at most 15 characters long"
 							},
 							programTitle : {
-								required : "Please enter Program/Solicitation title"
+								required : "Please enter Program/Solicitation title",
+								maxlength: : "Title may not be longer than 250 characters"
 							},
 							PISalaryIncluded : {
 								required : "Please select this proposal includes PI salary"

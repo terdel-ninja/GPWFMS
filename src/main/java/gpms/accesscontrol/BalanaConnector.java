@@ -110,6 +110,7 @@ public class BalanaConnector {
 	public String getXACMLdecision(
 			HashMap<String, Multimap<String, String>> attrMap) {
 		String request = createXACMLRequest(attrMap);
+		System.out.println("attrMap: " + attrMap);
 		ResponseCtx response = getResponse(request.replaceAll(">\\s+<", "><"));
 		if (response != null) {
 			System.out
