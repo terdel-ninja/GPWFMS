@@ -97,13 +97,13 @@ $(function() {
 							},
 							password : {
 								required : true,
-								minlength : 6,
-								maxlength : 15
+								minlength : 8,
+								maxlength : 64
 							},
 							confirm_password : {
 								required : true,
-								minlength : 6,
-								maxlength : 15,
+								minlength : 8,
+								maxlength : 64,
 								equalTo : "#txtPassword"
 							}
 						},
@@ -157,13 +157,13 @@ $(function() {
 							},
 							password : {
 								required : "Please provide a password",
-								minlength : "Your password must be between 6 and 15 characters",
-								maxlength : "Your password must be between 6 and 15 characters"
+								minlength : "Your password must be between 8 and 64 characters",
+								maxlength : "Your password must be between 8 and 64 characters"
 							},
 							confirm_password : {
 								required : "Please confirm your password",
-								minlength : "Your password must be between 6 and 15 characters",
-								maxlength : "Your password must be between 6 and 15 characters",
+								minlength : "Your password must be between 8 and 64 characters",
+								maxlength : "Your password must be between 8 and 64 characters",
 								equalTo : "Please enter the same password as above"
 							}
 						}
@@ -171,6 +171,7 @@ $(function() {
 
 	var rowIndex = 0;
 	var editFlag = "0";
+	var passwordisValid = "";
 	var userNameIsUnique = false;
 	var emailIsUnique = false;
 
@@ -896,6 +897,13 @@ $(function() {
 									"txtPersonalEmail");
 				}
 
+                if (validateErrorMessage == "") {
+                    var $password = $("#txtPassword");
+                    var password = $.trim($password.val());
+                    validateErrorMessage += signUp.checkValidPassword(user_id, password, $password
+                    );
+                }
+
 				if (validateErrorMessage == "") {
 					var optionsText = $('select[name="ddlPositionTitle"]')
 							.val();
@@ -1030,18 +1038,85 @@ $(function() {
 			return emailIsUnique;
 		},
 
+        //Author: Anthony Luo
+        //Checks password for conformance to 2017 NIST Standards
+
+        checkValidPassword: function (user, password, textboxPassword) {
+            var errors = '';
+            if (!textboxPassword.hasClass('error') && password.length > 0) {
+
+                switch (signUp.isValidPassword(user, password)) {
+                    case "valid":
+                        textboxPassword.removeClass("error");
+                        textboxPassword.siblings('.cssClassRight').show();
+                        textboxPassword.siblings('.error').hide();
+                        textboxPassword.siblings('.error').html('');
+                        break;
+                    case "blacklisted":
+                        errors += 'This password is invalid because it has been blacklisted';
+                        textboxPassword.siblings('.cssClassRight').hide();
+                        if (textboxPassword.siblings('label.error').exists()) {
+                            textboxPassword.siblings('label.error').html(errors);
+                        } else {
+                            $(
+                                '<label id="txtUserName-error" class="error" for="txtUserName">'
+                                + errors + '</label>').insertAfter(
+                                textboxPassword);
+                        }
+                        textboxPassword.siblings('.error').show();
+                        break;
+                    case "similar":
+                        errors += 'This password is invalid because it is too similar to your username';
+                        textboxPassword.siblings('.cssClassRight').hide();
+                        if (textboxPassword.siblings('label.error').exists()) {
+                            textboxPassword.siblings('label.error').html(errors);
+                        } else {
+                            $(
+                                '<label id="txtUserName-error" class="error" for="txtUserName">'
+                                + errors + '</label>').insertAfter(
+                                textboxPassword);
+                        }
+                        textboxPassword.siblings('.error').show();
+                        break;
+
+                }
+            }
+
+            return errors;
+        },
+
+        isValidPassword: function (user, password){
+            var passwordObj = {
+                UserName: user,
+                Password: password
+            };
+
+            this.config.url = this.config.baseURL + "CheckValidCredential";
+            this.config.data = JSON2.stringify({
+                passwordObj: passwordObj
+            });
+            this.config.ajaxCallMode = 11;
+            this.ajaxCall(this.config);
+            return passwordisValid;
+
+        },
+
+
+        //End Changes by Anthony LUo
+
+
 		addPwdValidateRules : function() {
 			$("#txtPassword")
 					.rules(
 							"add",
 							{
 								required : true,
-								minlength : 6,
-								maxlength : 15,
+								minlength : 8,
+								maxlength : 64,
 								messages : {
 									required : "Please provide a password",
-									minlength : "Your password must be between 6 and 15 characters",
-									maxlength : "Your password must be between 6 and 15 characters"
+									minlength : "Your password must be between 8 and 64 characters",
+									maxlength : "Your password must be between 8 and 64 characters"
 								}
 							});
 			$("#txtConfirmPassword")
@@ -1049,13 +1124,13 @@ $(function() {
 							"add",
 							{
 								required : true,
-								minlength : 6,
-								maxlength : 15,
+								minlength : 8,
+								maxlength : 64,
 								equalTo : "#txtPassword",
 								messages : {
 									required : "Please confirm your password",
-									minlength : "Your password must be between 6 and 15 characters",
-									maxlength : "Your password must be between 6 and 15 characters",
+									minlength : "Your password must be between 8 and 64 characters",
+									maxlength : "Your password must be between 8 and 64 characters",
 									equalTo : "Please enter the same password as above"
 								}
 							});
@@ -1084,76 +1159,81 @@ $(function() {
 
 		ajaxSuccess : function(msg) {
 			switch (adminUsersManage.config.ajaxCallMode) {
-			case 0:
-				break;
+                case 0:
+                    break;
 
-			case 2:// For User Edit Action
-				adminUsersManage.FillForm(msg);
-				$('#divUserGrid').hide();
-				$('#divUserForm').show();
-				break;
+                case 2:// For User Edit Action
+                    adminUsersManage.FillForm(msg);
+                    $('#divUserGrid').hide();
+                    $('#divUserForm').show();
+                    break;
 
-			case 3:// For User Delete
-				adminUsersManage.BindAdminUserGrid(null, null, null);
-				csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
-						+ 'User has been deleted successfully.' + "</p>");
+                case 3:// For User Delete
+                    adminUsersManage.BindAdminUserGrid(null, null, null);
+                    csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
+                        + 'User has been deleted successfully.' + "</p>");
 
-				$('#divUserForm').hide();
-				$('#divUserGrid').show();
-				break;
+                    $('#divUserForm').hide();
+                    $('#divUserGrid').show();
+                    break;
 
-			case 4:
-				SageData.Get("gdvAdminUsers").Arr.length = 0;
-				adminUsersManage.BindAdminUserGrid(null, null, null);
-				csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
-						+ 'Selected user(s) has been deleted successfully.'
-						+ "</p>");
-				break;
+                case 4:
+                    SageData.Get("gdvAdminUsers").Arr.length = 0;
+                    adminUsersManage.BindAdminUserGrid(null, null, null);
+                    csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
+                        + 'Selected user(s) has been deleted successfully.'
+                        + "</p>");
+                    break;
 
-			case 5:
-				adminUsersManage.BindAdminUserGrid(null, null, null);
-				csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
-						+ 'User has been activated successfully.' + "</p>");
-				break;
+                case 5:
+                    adminUsersManage.BindAdminUserGrid(null, null, null);
+                    csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
+                        + 'User has been activated successfully.' + "</p>");
+                    break;
 
-			case 6:
-				adminUsersManage.BindAdminUserGrid(null, null, null);
-				csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
-						+ 'User has been deactivated successfully.' + "</p>");
-				break;
+                case 6:
+                    adminUsersManage.BindAdminUserGrid(null, null, null);
+                    csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
+                        + 'User has been deactivated successfully.' + "</p>");
+                    break;
 
-			case 7:
-				userNameIsUnique = stringToBoolean(msg);
-				break;
+                case 7:
+                    userNameIsUnique = stringToBoolean(msg);
+                    break;
 
-			case 8:
-				emailIsUnique = stringToBoolean(msg);
-				break;
+                case 8:
+                    emailIsUnique = stringToBoolean(msg);
+                    break;
 
-			case 9:
-				adminUsersManage.BindAdminUserGrid(null, null, null);
-				$('#divUserGrid').show();
-				if (editFlag != "0") {
-					csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
-							+ 'User has been updated successfully.' + "</p>");
-				} else {
-					csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
-							+ 'User has been saved successfully.' + "</p>");
-				}
-				adminUsersManage.ClearForm();
-				$('#divUserForm').hide();
-				break;
+                case 9:
+                    adminUsersManage.BindAdminUserGrid(null, null, null);
+                    $('#divUserGrid').show();
+                    if (editFlag != "0") {
+                        csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
+                            + 'User has been updated successfully.' + "</p>");
+                    } else {
+                        csscody.info("<h2>" + 'Successful Message' + "</h2><p>"
+                            + 'User has been saved successfully.' + "</p>");
+                    }
+                    adminUsersManage.ClearForm();
+                    $('#divUserForm').hide();
+                    break;
 
-			case 10:
-				if (msg != "No Record") {
-					window.location.href = GPMS.utils.GetGPMSServicePath()
-							+ 'files/download?fileName=' + msg;
-				} else {
-					csscody.alert("<h2>" + 'Information Message' + "</h2><p>"
-							+ 'No Record found!' + "</p>");
-				}
-				break;
-			}
+                case 10:
+                    if (msg != "No Record") {
+                        window.location.href = GPMS.utils.GetGPMSServicePath()
+                            + 'files/download?fileName=' + msg;
+                    } else {
+                        csscody.alert("<h2>" + 'Information Message' + "</h2><p>"
+                            + 'No Record found!' + "</p>");
+                    }
+                    break;
+
+
+                case 11:
+                    passwordisValid = msg;
+                    break;
+            }
 		},
 
 		ajaxFailure : function(msg) {
@@ -1204,6 +1284,10 @@ $(function() {
 				csscody.error("<h2>" + 'Error Message' + "</h2><p>"
 						+ 'Cannot create and download Excel report!' + "</p>");
 				break;
+				case 11:
+                    csscody.error("<h2>" + 'Error Message' + "</h2><p>"
+                        + 'Cannot check for valid credentials' + "</p>");
+                    break;
 			}
 		},
 
@@ -1308,7 +1392,14 @@ $(function() {
 			$('#txtPassword').dblclick(function() {
 				$(this).val('');
 				adminUsersManage.addPwdValidateRules();
-			});
+                //Author: Anthony Luo
+                //Checks password for conformance to 2017 NIST Standards
+                var password = $.trim($(this).val());
+                var userName = $.trim($('#txtUserName').val());
+                adminUsersManage.checkValidPassword(userName, password, $(this));
+                return false;
+            });
+            //End Changes
 
 			$('#txtUserName').on("focus", function() {
 				$(this).siblings('.cssClassRight').hide();

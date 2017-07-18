@@ -1,469 +1,567 @@
 var signUp = '';
-$(function() {
+$(function () {
 
-	// if (userProfileId == "null") {
-	// window.location = 'Login.jsp';
-	// }
+    // if (userProfileId == "null") {
+    // window.location = 'Login.jsp';
+    // }
 
-	jQuery.fn.exists = function() {
-		return this.length > 0;
-	}
-	
-	var validator = $("#form1")
-			.validate(
-					{
-						ignore: ".ignore",
-						rules : {
-							username : {
-								required : true,
-								minlength : 3,
-								maxlength:20,
-								noSpace: true,
-								noSpecial: true
-							},
-							password : {
-								required : true,
-								minlength : 6,
-								maxlength : 15,
-								noSpace: true
-							},
-							confirm_password : {
-								required : true,
-								minlength : 6,
-								maxlength : 15,
-								equalTo : "#txtPassword"
-							},
-							workEmail : {
-								required : true,
-								email : true
-							},
-							firstName : {
-								required : true,
-								maxlength : 40,
-								noSpecial: true
-							},
-							lastName : {
-								required : true,
-								maxlength : 40,
-								noSpecial: true
-							},
-							dob : {
-								required : true,
-								dpDate : true
-							},
-							gender : {
-								required : true
-							},
-							street : {
-								required : true,
-								minlength : 3,
-								noSpecial: true
-							},
-							city : {
-								required : true,
-								noSpecial: true
-							},
-							state : {
-								required : true,
-								noSpecial: true
-							},
-							zip : {
-								required : true
-							},
-							country : {
-								required : true,
-								noSpecial: true
-							},
-							mobileNumber : {
-								required : true
-							}
-						},
-						errorElement : "label",
-						messages : {
-							username : {
-								required : "Please enter a username",
-								minlength : "Your username must be between 3 and 20 characters",
-								maxlength : "Your username must be between 3 and 20 characters",
-								noSpace : "Username cannot contain spaces",
-								noSpecial: "Username cannot contain special characters"
-							},
-							password : {
-								required : "Please provide a password",
-								minlength : "Your password must be between 6 and 15 characters",
-								maxlength : "Your password must be between 6 and 15 characters",
-								noSpace : "Password cannot contain spaces"
-							},
-							confirm_password : {
-								required : "Please confirm your password",
-								minlength : "Your password must be between 6 and 15 characters",
-								equalTo : "Please enter the same password as above",
-								maxlength : "Your password must be between 6 and 15 characters"
-							},
-							workEmail : {
-								required : "Please enter your work email",
-								email : "Please enter valid email id"
-							},
-							firstName : {
-								required : "Please enter your firstname",
-								maxlength : "Your firstname must be at most 40 characters long",
-								noSpecial: "First name cannot contain special characters"
-							},
-							lastName : {
-								required : "Please enter your lastname",
-								maxlength : "Your lastname must be at most 40 characters long",
-								noSpecial: "Last name cannot contain special characters"
-							},
-							dob : {
-								required : "Please enter your date of birth",
-								dpDate : "Please enter valid date"
-							},
-							gender : {
-								required : "Please select your gender"
-							},
-							street : {
-								required : "Please enter your street address",
-								minlength : "Please enter valid your street address",
-								noSpecial: "Street cannot contain special characters"
-							},
-							city : {
-								required : "Please enter your city",
-								noSpecial: "City cannot contain special characters"
-							},
-							state : {
-								required : "Please select your city",
-								noSpecial: "Street cannot contain special characters"
-							},
-							zip : {
-								required : "Please enter your zip code"
-							},
-							country : {
-								required : "Please select your country",
-								noSpecial: "Country cannot contain special characters"
-							},
-							mobileNumber : {
-								required : "Please enter your mobile phone number"
-							}
-						}
-					});
+    jQuery.fn.exists = function () {
+        return this.length > 0;
+    }
 
-	var userNameIsUnique = false;
-	var emailIsUnique = false;
+    var validator = $("#form1")
+        .validate(
+            {
+                ignore: ".ignore",
+                rules: {
+                    username: {
+                        required: true,
+                        minlength: 3,
+                        maxlength: 20,
+                        noSpace: true,
+                        noSpecial: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 8,
+                        maxlength: 64,
+                        noSpace: true
+                    },
+                    confirm_password: {
+                        required: true,
+                        minlength: 8,
+                        maxlength: 64,
+                        equalTo: "#txtPassword"
+                    },
+                    workEmail: {
+                        required: true,
+                        email: true
+                    },
+                    firstName: {
+                        required: true,
+                        maxlength: 40,
+                        noSpecial: true
+                    },
+                    lastName: {
+                        required: true,
+                        maxlength: 40,
+                        noSpecial: true
+                    },
+                    dob: {
+                        required: true,
+                        dpDate: true
+                    },
+                    gender: {
+                        required: true
+                    },
+                    street: {
+                        required: true,
+                        minlength: 3,
+                        noSpecial: true
+                    },
+                    city: {
+                        required: true,
+                        noSpecial: true
+                    },
+                    state: {
+                        required: true,
+                        noSpecial: true
+                    },
+                    zip: {
+                        required: true
+                    },
+                    country: {
+                        required: true,
+                        noSpecial: true
+                    },
+                    mobileNumber: {
+                        required: true
+                    }
+                },
+                errorElement: "label",
+                messages: {
+                    username: {
+                        required: "Please enter a username",
+                        minlength: "Your username must be between 3 and 20 characters",
+                        maxlength: "Your username must be between 3 and 20 characters",
+                        noSpace: "Username cannot contain spaces",
+                        noSpecial: "Username cannot contain special characters"
+                    },
+                    password: {
+                        required: "Please provide a password",
+                        minlength: "Your password must be between 8 and 64 characters",
+                        maxlength: "Your password must be between 8 and 64 characters", //Removed no spaces requirement
+                    },
+                    confirm_password: {
+                        required: "Please confirm your password",
+                        minlength: "Your password must be between 8 and 64 characters",
+                        equalTo: "Please enter the same password as above",
+                        maxlength: "Your password must be between 8 and 64 characters"
+                    },
+                    workEmail: {
+                        required: "Please enter your work email",
+                        email: "Please enter valid email id"
+                    },
+                    firstName: {
+                        required: "Please enter your firstname",
+                        maxlength: "Your firstname must be at most 40 characters long",
+                        noSpecial: "First name cannot contain special characters"
+                    },
+                    lastName: {
+                        required: "Please enter your lastname",
+                        maxlength: "Your lastname must be at most 40 characters long",
+                        noSpecial: "Last name cannot contain special characters"
+                    },
+                    dob: {
+                        required: "Please enter your date of birth",
+                        dpDate: "Please enter valid date"
+                    },
+                    gender: {
+                        required: "Please select your gender"
+                    },
+                    street: {
+                        required: "Please enter your street address",
+                        minlength: "Please enter valid your street address",
+                        noSpecial: "Street cannot contain special characters"
+                    },
+                    city: {
+                        required: "Please enter your city",
+                        noSpecial: "City cannot contain special characters"
+                    },
+                    state: {
+                        required: "Please select your city",
+                        noSpecial: "Street cannot contain special characters"
+                    },
+                    zip: {
+                        required: "Please enter your zip code"
+                    },
+                    country: {
+                        required: "Please select your country",
+                        noSpecial: "Country cannot contain special characters"
+                    },
+                    mobileNumber: {
+                        required: "Please enter your mobile phone number"
+                    }
+                }
+            });
 
-	signUp = {
-		config : {
-			isPostBack : false,
-			async : false,
-			cache : false,
-			type : 'POST',
-			contentType : "application/json; charset=utf-8",
-			data : '{}',
-			dataType : 'json',
-			baseURL : GPMS.utils.GetGPMSServicePath() + "users/",
-			method : "",
-			url : "",
-			ajaxCallMode : 0
-		},
+    var userNameIsUnique = false;
+    var emailIsUnique = false;
+    var passwordisValid = "";
 
-		ajaxCall : function(config) {
-			$
-					.ajax({
-						type : signUp.config.type,
-						beforeSend : function(request) {
-							request.setRequestHeader('GPMS-TOKEN', _aspx_token);
-							request.setRequestHeader("UName", GPMS.utils
-									.GetUserName());
-							request.setRequestHeader("PID", GPMS.utils
-									.GetUserProfileID());
-							request.setRequestHeader("PType", "v");
-							request.setRequestHeader('Escape', '0');
-						},
-						contentType : signUp.config.contentType,
-						cache : signUp.config.cache,
-						async : signUp.config.async,
-						url : signUp.config.url,
-						data : signUp.config.data,
-						dataType : signUp.config.dataType,
-						success : signUp.ajaxSuccess,
-						error : signUp.ajaxFailure
-					});
-		},
+    signUp = {
+        config: {
+            isPostBack: false,
+            async: false,
+            cache: false,
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: '{}',
+            dataType: 'json',
+            baseURL: GPMS.utils.GetGPMSServicePath() + "users/",
+            method: "",
+            url: "",
+            ajaxCallMode: 0
+        },
 
-		checkUniqueUserName : function(user_id, userName, textBoxUserName) {
-			var errors = '';
-			
-			
-			
-			if (!textBoxUserName.hasClass('error') && userName.length > 0) {
-				if (!signUp.isUniqueUserName(user_id, userName)) {
-					errors += 'Please enter unique username.' + " '"
-					+ userName.trim()+ "' "
-					+ 'has already been taken.';
-					textBoxUserName.addClass("error");
-					textBoxUserName.siblings('.cssClassRight').hide();
-					if (textBoxUserName.siblings('label.error').exists()) {
-						textBoxUserName.siblings('label.error').html(errors);
-					} else {
-						$(
-								'<label id="txtUserName-error" class="error" for="txtUserName">'
-										+ errors + '</label>').insertAfter(
-								textBoxUserName);
-					}
+        ajaxCall: function (config) {
+            $
+                .ajax({
+                    type: signUp.config.type,
+                    beforeSend: function (request) {
+                        request.setRequestHeader('GPMS-TOKEN', _aspx_token);
+                        request.setRequestHeader("UName", GPMS.utils
+                            .GetUserName());
+                        request.setRequestHeader("PID", GPMS.utils
+                            .GetUserProfileID());
+                        request.setRequestHeader("PType", "v");
+                        request.setRequestHeader('Escape', '0');
+                    },
+                    contentType: signUp.config.contentType,
+                    cache: signUp.config.cache,
+                    async: signUp.config.async,
+                    url: signUp.config.url,
+                    data: signUp.config.data,
+                    dataType: signUp.config.dataType,
+                    success: signUp.ajaxSuccess,
+                    error: signUp.ajaxFailure
+                });
+        },
 
-					textBoxUserName.siblings('.error').show();
-					// textBoxUserName.focus();
-				} else {
-					textBoxUserName.removeClass("error");
-					textBoxUserName.siblings('.cssClassRight').show();
-					textBoxUserName.siblings('.error').hide();
-					textBoxUserName.siblings('.error').html('');
-				}
-			}
-			return errors;
-		},
+        checkUniqueUserName: function (user_id, userName, textBoxUserName) {
+            var errors = '';
 
-		isUniqueUserName : function(userId, newUserName) {
-			var userUniqueObj = {
-				UserID : userId,
-				NewUserName : newUserName
-			};
 
-			this.config.url = this.config.baseURL + "CheckUniqueUserName";
-			this.config.data = JSON2.stringify({
-				userUniqueObj : userUniqueObj
-			});
-			this.config.ajaxCallMode = 1;
-			this.ajaxCall(this.config);
-			return userNameIsUnique;
-		},
+            if (!textBoxUserName.hasClass('error') && userName.length > 0) {
+                if (!signUp.isUniqueUserName(user_id, userName)) {
+                    errors += 'Please enter unique username.' + " '"
+                        + userName.trim() + "' "
+                        + 'has already been taken.';
+                    textBoxUserName.addClass("error");
+                    textBoxUserName.siblings('.cssClassRight').hide();
+                    if (textBoxUserName.siblings('label.error').exists()) {
+                        textBoxUserName.siblings('label.error').html(errors);
+                    } else {
+                        $(
+                            '<label id="txtUserName-error" class="error" for="txtUserName">'
+                            + errors + '</label>').insertAfter(
+                            textBoxUserName);
+                    }
 
-		checkUniqueEmailAddress : function(user_id, email, textBoxEmail) {
-			var errors = '';
-			var txtEmail = $("#" + textBoxEmail);
-			if (!txtEmail.hasClass('error') && email.length > 0) {
-				if (!signUp.isUniqueEmail(user_id, email)) {
-					errors += 'Please enter unique email id.' + " '"
-							+ email.trim() + "' " + 'has already been taken.';
-					txtEmail.addClass("error");
-					txtEmail.siblings('.cssClassRight').hide();
-					if (txtEmail.siblings('label.error').exists()) {
-						txtEmail.siblings('.error').html(errors);
-					} else {
-						$(
-								'<label id="' + textBoxEmail
-										+ '-error" class="error" for="'
-										+ textBoxEmail + '">' + errors
-										+ '</label>').insertAfter(txtEmail);
-					}
+                    textBoxUserName.siblings('.error').show();
+                    // textBoxUserName.focus();
+                } else {
+                    textBoxUserName.removeClass("error");
+                    textBoxUserName.siblings('.cssClassRight').show();
+                    textBoxUserName.siblings('.error').hide();
+                    textBoxUserName.siblings('.error').html('');
+                }
+            }
+            return errors;
+        },
 
-					txtEmail.siblings('.error').show();
-					// txtEmail.focus();
-				} else {
-					txtEmail.removeClass("error");
-					txtEmail.siblings('.cssClassRight').show();
-					txtEmail.siblings('.error').hide();
-					txtEmail.siblings('.error').html('');
-				}
-			}
-			return errors;
-		},
+        isUniqueUserName: function (userId, newUserName) {
+            var userUniqueObj = {
+                UserID: userId,
+                NewUserName: newUserName
+            };
 
-		isUniqueEmail : function(userId, newEmail) {
-			var userUniqueObj = {
-				UserID : userId,
-				NewEmail : newEmail
-			};
+            this.config.url = this.config.baseURL + "CheckUniqueUserName";
+            this.config.data = JSON2.stringify({
+                userUniqueObj: userUniqueObj
+            });
+            this.config.ajaxCallMode = 1;
+            this.ajaxCall(this.config);
+            return userNameIsUnique;
+        },
 
-			this.config.url = this.config.baseURL + "CheckUniqueEmail";
-			this.config.data = JSON2.stringify({
-				userUniqueObj : userUniqueObj
-			});
-			this.config.ajaxCallMode = 2;
-			this.ajaxCall(this.config);
-			return emailIsUnique;
-		},
+        checkUniqueEmailAddress: function (user_id, email, textBoxEmail) {
+            var errors = '';
+            var txtEmail = $("#" + textBoxEmail);
+            if (!txtEmail.hasClass('error') && email.length > 0) {
+                if (!signUp.isUniqueEmail(user_id, email)) {
+                    errors += 'Please enter unique email id.' + " '"
+                        + email.trim() + "' " + 'has already been taken.';
+                    txtEmail.addClass("error");
+                    txtEmail.siblings('.cssClassRight').hide();
+                    if (txtEmail.siblings('label.error').exists()) {
+                        txtEmail.siblings('.error').html(errors);
+                    } else {
+                        $(
+                            '<label id="' + textBoxEmail
+                            + '-error" class="error" for="'
+                            + textBoxEmail + '">' + errors
+                            + '</label>').insertAfter(txtEmail);
+                    }
 
-		signUpUser : function() {
-			if (validator.form()) {
-				var $username = $('#txtUserName');
-				var userName = $.trim($username.val());
-				var user_id = "0";
-				var validateErrorMessage = signUp.checkUniqueUserName(user_id,
-						userName, $username);
-				//Author: Patrick Chapman
-				//Validates captcha on sign-up page
-				//Date: 4/15/17
-				var gresponse = grecaptcha.getResponse();
-				console.log(gresponse);
-				if(gresponse.length == 0){
-					validateErrorMessage = "Captcha not validated.";
-					document.getElementById('captcha').innerHTML="Please use captcha.";
-				}else{
-					document.getElementById('captcha').innerHTML="";
-				}
-				//End of Patrick Code
-			
-				if (validateErrorMessage == "") {
-					var $workEmail = $("#txtWorkEmail");
-					var workEmail = $.trim($workEmail.val());
-					validateErrorMessage += signUp.checkUniqueEmailAddress(
-							user_id, workEmail, "txtWorkEmail");
-				}
-			
-				if (validateErrorMessage == "") {
-					var userInfo = {
-						UserID : user_id,
-						UserName : $.trim($('#txtUserName').val()),
-						Password : $.trim($('#txtPassword').val()),
-						WorkEmail : $('#txtWorkEmail').val(),
-						FirstName : $.trim($('#txtFirstName').val()),
-						MiddleName : $.trim($('#txtMiddleName').val()),
-						LastName : $.trim($('#txtLastName').val()),
-						DOB : $('#txtDOB').val(),
-						Gender : $('#ddlGender :selected').val(),
-						Street : $.trim($('#txtStreet').val()),
-						Apt : $.trim($('#txtApt').val()),
-						City : $.trim($('#txtCity').val()),
-						State : $('#ddlState :selected').text(),
-						Zip : $.trim($('#txtZip').val()),
-						Country : $('#ddlCountry :selected').text(),
-						MobileNumber : $('#txtMobileNumber').mask(),
-						Recaptcha: gresponse
-					};
-					signUp.AddUserInfo(userInfo);
-				
-				} else {
-					return false;
-				}
-			}
-		},
+                    txtEmail.siblings('.error').show();
+                    // txtEmail.focus();
+                } else {
+                    txtEmail.removeClass("error");
+                    txtEmail.siblings('.cssClassRight').show();
+                    txtEmail.siblings('.error').hide();
+                    txtEmail.siblings('.error').html('');
+                }
+            }
+            return errors;
+        },
 
-		AddUserInfo : function(info) {
-			this.config.url = this.config.baseURL + "signup";
-			this.config.data = JSON2.stringify({
-				userInfo : info
-			});
-			this.config.ajaxCallMode = 3;
-			this.ajaxCall(this.config);
-			return false;
-		},
+        isUniqueEmail: function (userId, newEmail) {
+            var userUniqueObj = {
+                UserID: userId,
+                NewEmail: newEmail
+            };
 
-		ClearForm : function() {
-			validator.resetForm();
-			$('.cssClassRight').hide();
-			$('.warning').hide();
+            this.config.url = this.config.baseURL + "CheckUniqueEmail";
+            this.config.data = JSON2.stringify({
+                userUniqueObj: userUniqueObj
+            });
+            this.config.ajaxCallMode = 2;
+            this.ajaxCall(this.config);
+            return emailIsUnique;
+        },
 
-			var inputs = $("#form1").find('INPUT, SELECT');
-			$.each(inputs, function(i, item) {
-				// rmErrorClass(item);
-				$(this).val('');
-				$(this).val($(this).find('option').first().val());
-			});
-			return false;
-		},
+        //Author: Anthony Luo
+        //Checks password for conformance to 2017 NIST Standards
 
-		ajaxSuccess : function(msg) {
-			switch (signUp.config.ajaxCallMode) {
-			case 0:
-				break;
-			case 1:
-				userNameIsUnique = stringToBoolean(msg);
-				break;
-			case 2:
-				emailIsUnique = stringToBoolean(msg);
-				break;
-			case 3:
-				csscody
-						.info("<h2>"
-								+ 'Great! You are signed up.'
-								+ "</h2><p>"
-								+ "<b>"
-								+ $("#txtWorkEmail").val()
-								+ "</b>"
-								+ "</br>"
-								+ 'Now, go check your email.<br/>The email contains information for activation.'
-								+ "</p>");
+        checkValidPassword: function (user, password, textboxPassword) {
+            var errors = '';
+            if (!textboxPassword.hasClass('error') && password.length > 0) {
 
-				signUp.ClearForm();
-				break;
-			}
-		},
+                switch (signUp.isValidPassword(user, password)) {
+                    case "valid":
+                        textboxPassword.removeClass("error");
+                        textboxPassword.siblings('.cssClassRight').show();
+                        textboxPassword.siblings('.error').hide();
+                        textboxPassword.siblings('.error').html('');
+                        break;
+                    case "blacklisted":
+                        errors += 'This password is invalid because it has been blacklisted';
+                        textboxPassword.siblings('.cssClassRight').hide();
+                        if (textboxPassword.siblings('label.error').exists()) {
+                            textboxPassword.siblings('label.error').html(errors);
+                        } else {
+                            $(
+                                '<label id="txtUserName-error" class="error" for="txtUserName">'
+                                + errors + '</label>').insertAfter(
+                                textboxPassword);
+                        }
+                        textboxPassword.siblings('.error').show();
+                        break;
+                    case "similar":
+                        errors += 'This password is invalid because it is too similar to your username';
+                        textboxPassword.siblings('.cssClassRight').hide();
+                        if (textboxPassword.siblings('label.error').exists()) {
+                            textboxPassword.siblings('label.error').html(errors);
+                        } else {
+                            $(
+                                '<label id="txtUserName-error" class="error" for="txtUserName">'
+                                + errors + '</label>').insertAfter(
+                                textboxPassword);
+                        }
+                        textboxPassword.siblings('.error').show();
+                        break;
 
-		ajaxFailure : function(msg) {
-			switch (signUp.config.ajaxCallMode) {
-			case 0:
-				break;
-			case 1:
-				csscody.error("<h2>" + 'Error Message' + "</h2><p>"
-						+ 'Cannot check for unique Username' + "</p>");
-				break;
-			case 2:
-				csscody.error("<h2>" + 'Error Message' + "</h2><p>"
-						+ 'Cannot check for unique Email' + "</p>");
-				break;
-			case 3:
-				csscody.error("<h2>" + 'Error Message' + "</h2><p>"
-						+ 'Failed to save user!' + "</p>");
-				break;
-			}
-		},
+                }
+            }
 
-		init : function() {
-			signUp.ClearForm();
+            return errors;
+        },
 
-			$("#txtMobileNumber").mask("(999) 999-9999");
-			$("#txtZip").mask("99999");
+        isValidPassword: function (user, password){
+            var passwordObj = {
+                UserName: user,
+                Password: password
+            };
 
-			$("#txtDOB").datepicker({
-				dateFormat : 'yy-mm-dd',
-				changeMonth : true,
-				changeYear : true,
-				yearRange : "-100:+0",
-				maxDate : 0
-			}).mask("9999-99-99", {
-				placeholder : "yyyy-mm-dd"
-			});
+            this.config.url = this.config.baseURL + "CheckValidCredential";
+            this.config.data = JSON2.stringify({
+                passwordObj: passwordObj
+            });
+            this.config.ajaxCallMode = 4;
+            this.ajaxCall(this.config);
+            return passwordisValid;
 
-			$("#btnSignUp").on("click", function(e) {
-				$(this).disableWith('Registering...');
-				signUp.signUpUser();
-				$(this).enableAgain();
-				e.preventDefault();
-				return false;
-			});
+        },
 
-			$('#txtUserName').on("focus", function() {
-				$(this).siblings('.cssClassRight').hide();
-			}), $('#txtUserName').on("blur", function() {
-				var userName = $.trim($(this).val());
-				var user_id = "0";
-				signUp.checkUniqueUserName(user_id, userName, $(this));
-				return false;
-			});
 
-			$('#txtWorkEmail').on("focus", function() {
-				$(this).siblings('.cssClassRight').hide();
-			}), $('#txtWorkEmail').on("blur", function() {
-				var email = $.trim($(this).val());
-				var user_id = "0";
-				signUp.checkUniqueEmailAddress(user_id, email, this.id);
-				return false;
-			});
+        //End Changes by Anthony LUo
 
-			var $form = $("#form1");
-			$form.find("[data-form-input]").on(
-					"focus",
-					function() {
-						$this = $(this), fieldName = $this.attr("id"), $(
-								'[for="' + fieldName + '"]').find(
-								"[data-form-label-description]").addClass(
-								"is-visible")
-					}), $form.find("[data-form-input]").on(
-					"blur",
-					function() {
-						$("[data-form-label-description].is-visible")
-								.removeClass("is-visible")
-					});
-		}
-	};
-	signUp.init();
+        signUpUser: function () {
+            if (validator.form()) {
+                var $username = $('#txtUserName');
+                var userName = $.trim($username.val());
+                var user_id = "0";
+                var validateErrorMessage = signUp.checkUniqueUserName(user_id,
+                    userName, $username);
+                //Author: Patrick Chapman
+                //Validates captcha on sign-up page
+                //Date: 4/15/17
+                var gresponse = grecaptcha.getResponse();
+                console.log(gresponse);
+                if (gresponse.length == 0) {
+                    validateErrorMessage = "Captcha not validated.";
+                    document.getElementById('captcha').innerHTML = "Please use captcha.";
+                } else {
+                    document.getElementById('captcha').innerHTML = "";
+                }
+                //End of Patrick Code
+
+                if (validateErrorMessage == "") {
+                    var $workEmail = $("#txtWorkEmail");
+                    var workEmail = $.trim($workEmail.val());
+                    validateErrorMessage += signUp.checkUniqueEmailAddress(
+                        user_id, workEmail, "txtWorkEmail");
+                }
+
+                //Author: Anthony Luo
+                //Checks password for conformance to 2017 NIST Standards
+                if (validateErrorMessage == "") {
+                    var $password = $("#txtPassword");
+                    var password = $.trim($password.val());
+                    validateErrorMessage += signUp.checkValidPassword(user_id, password, $password
+                    );
+                }
+                //End Changes
+
+                if (validateErrorMessage == "") {
+                    var userInfo = {
+                        UserID: user_id,
+                        UserName: $.trim($('#txtUserName').val()),
+                        Password: $.trim($('#txtPassword').val()),
+                        WorkEmail: $('#txtWorkEmail').val(),
+                        FirstName: $.trim($('#txtFirstName').val()),
+                        MiddleName: $.trim($('#txtMiddleName').val()),
+                        LastName: $.trim($('#txtLastName').val()),
+                        DOB: $('#txtDOB').val(),
+                        Gender: $('#ddlGender :selected').val(),
+                        Street: $.trim($('#txtStreet').val()),
+                        Apt: $.trim($('#txtApt').val()),
+                        City: $.trim($('#txtCity').val()),
+                        State: $('#ddlState :selected').text(),
+                        Zip: $.trim($('#txtZip').val()),
+                        Country: $('#ddlCountry :selected').text(),
+                        MobileNumber: $('#txtMobileNumber').mask(),
+                        Recaptcha: gresponse
+                    };
+                    signUp.AddUserInfo(userInfo);
+
+                } else {
+                    return false;
+                }
+            }
+        },
+
+        AddUserInfo: function (info) {
+            this.config.url = this.config.baseURL + "signup";
+            this.config.data = JSON2.stringify({
+                userInfo: info
+            });
+            this.config.ajaxCallMode = 3;
+            this.ajaxCall(this.config);
+            return false;
+        },
+
+        ClearForm: function () {
+            validator.resetForm();
+            $('.cssClassRight').hide();
+            $('.warning').hide();
+
+            var inputs = $("#form1").find('INPUT, SELECT');
+            $.each(inputs, function (i, item) {
+                // rmErrorClass(item);
+                $(this).val('');
+                $(this).val($(this).find('option').first().val());
+            });
+            return false;
+        },
+
+        ajaxSuccess: function (msg) {
+            switch (signUp.config.ajaxCallMode) {
+                case 0:
+                    break;
+                case 1:
+                    userNameIsUnique = stringToBoolean(msg);
+                    break;
+                case 2:
+                    emailIsUnique = stringToBoolean(msg);
+                    break;
+                case 3:
+                    csscody
+                        .info("<h2>"
+                            + 'Great! You are signed up.'
+                            + "</h2><p>"
+                            + "<b>"
+                            + $("#txtWorkEmail").val()
+                            + "</b>"
+                            + "</br>"
+                            + 'Now, go check your email.<br/>The email contains information for activation.'
+                            + "</p>");
+
+                    signUp.ClearForm();
+                    break;
+                case 4:
+                    passwordisValid = msg;
+                    break;
+            }
+        },
+
+        ajaxFailure: function (msg) {
+            switch (signUp.config.ajaxCallMode) {
+                case 0:
+                    break;
+                case 1:
+                    csscody.error("<h2>" + 'Error Message' + "</h2><p>"
+                        + 'Cannot check for unique Username' + "</p>");
+                    break;
+                case 2:
+                    csscody.error("<h2>" + 'Error Message' + "</h2><p>"
+                        + 'Cannot check ' +
+                        'for unique Email' + "</p>");
+                    break;
+                case 3:
+                    csscody.error("<h2>" + 'Error Message' + "</h2><p>"
+                        + 'Failed to save user!' + "</p>");
+                    break;
+                case 4:
+                    csscody.error("<h2>" + 'Error Message' + "</h2><p>"
+                        + 'Failed to check credentials!' + "</p>");
+                    break;
+            }
+        },
+
+        init: function () {
+            signUp.ClearForm();
+
+            $("#txtMobileNumber").mask("(999) 999-9999");
+            $("#txtZip").mask("99999");
+
+            $("#txtDOB").datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-100:+0",
+                maxDate: 0
+            }).mask("9999-99-99", {
+                placeholder: "yyyy-mm-dd"
+            });
+
+            $("#btnSignUp").on("click", function (e) {
+                $(this).disableWith('Registering...');
+                signUp.signUpUser();
+                $(this).enableAgain();
+                e.preventDefault();
+                return false;
+            });
+
+            $('#txtUserName').on("focus", function () {
+                $(this).siblings('.cssClassRight').hide();
+            }), $('#txtUserName').on("blur", function () {
+                var userName = $.trim($(this).val());
+                var user_id = "0";
+                signUp.checkUniqueUserName(user_id, userName, $(this));
+                return false;
+            });
+
+            //Author: Anthony Luo
+            //Checks password for conformance to 2017 NIST Standards
+
+            $('#txtPassword').on("focus", function () {
+                $(this).siblings('.cssClassRight').hide();
+            }), $('#txtPassword').on("blur", function () {
+                var password = $.trim($(this).val());
+                var userName = $.trim($('#txtUserName').val());
+                signUp.checkValidPassword(userName, password, $(this));
+                return false;
+            });
+            //End Changes
+
+
+            $('#txtWorkEmail').on("focus", function () {
+                $(this).siblings('.cssClassRight').hide();
+            }), $('#txtWorkEmail').on("blur", function () {
+                var email = $.trim($(this).val());
+                var user_id = "0";
+                signUp.checkUniqueEmailAddress(user_id, email, this.id);
+                return false;
+            });
+
+
+            var $form = $("#form1");
+            $form.find("[data-form-input]").on(
+                "focus",
+                function () {
+                    $this = $(this), fieldName = $this.attr("id"), $(
+                        '[for="' + fieldName + '"]').find(
+                        "[data-form-label-description]").addClass(
+                        "is-visible")
+                }), $form.find("[data-form-input]").on(
+                "blur",
+                function () {
+                    $("[data-form-label-description].is-visible")
+                        .removeClass("is-visible")
+                });
+        }
+    };
+    signUp.init();
 });
