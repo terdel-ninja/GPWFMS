@@ -1,12 +1,12 @@
 package gpms.rest;
 
 /**
- * Created by anthonyluo on 7/12/17.
+ * @author acdcjunior from Stack Overflow
+ * Implemented into GPMS by Anthony Luo
+ * Calculates the similarity (a number within 0 and 1) between two strings. This code is not written by me and uses the Levenshtein Edit Distance Formula
  */
 public class StringSimilarity {
-    /**
-     * Calculates the similarity (a number within 0 and 1) between two strings. This code is not written by me and uses the Levenshtein Edit Distance Formula
-     */
+
     public StringSimilarity() {
 
     }

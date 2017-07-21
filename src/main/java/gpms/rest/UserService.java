@@ -700,8 +700,13 @@ public class UserService {
 				.entity("{\"error\": \"Could Not Check For Unique Username\", \"status\": \"FAIL\"}")
 				.build();
 	}
-	//Author: Anthony Luo
-	//Checks password for conformance to 2017 NIST Standards
+
+	/**
+	 * @author Anthony Luo
+	 *
+	 * Validates given credentials as valid or invalid. Conforms to the 2017 NIST Standards.
+	 * @return returns response as either valid, similar or blacklisted.
+	 */
 	@POST
 	@Path("/CheckValidCredential")
 	@ApiOperation(value = "Checks for Valid Credentials (Username and password)", notes = "This API checks for valid credentials")
@@ -763,7 +768,6 @@ public class UserService {
 				.build();
 	}
 
-	//end changes
 
 
 

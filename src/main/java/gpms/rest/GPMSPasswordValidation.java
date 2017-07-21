@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Created by anthonyluo on 7/17/17.
+ * @author Anthony Luo
+ * validates if a given credential is valid or invalid with conformance to the 2017 NIST Standards
+ * @value BLACKLISTFILE the name of the password blacklist file
+
  */
 
 
@@ -25,6 +28,11 @@ public class GPMSPasswordValidation {
     public GPMSPasswordValidation() {
     }
 
+
+    /**
+     * sets the location of the password blacklist so it can be parsed
+     * @param filepath the filepath of the folder which contains the blacklist
+     */
     public void setFilePath(String filepath){
         BLACKLISTFILE = filepath + BLACKLISTNAME;
         if(!blacklistparsed){
@@ -32,7 +40,12 @@ public class GPMSPasswordValidation {
         }
     }
 
-
+    /**
+     * checks credentials for conformance to the 2017 NIST Standards
+     * @param user the username to be checked
+     * @param pass the password to be checked
+     * @return returns an enum of the validity of the password
+     */
     public validity isCredentialValidEnum(String user, String pass){
         if(isPasswordsimilartoUsername(user,pass)){
             return validity.SIMILAR;
@@ -43,13 +56,22 @@ public class GPMSPasswordValidation {
         return validity.VALID;
     }
 
-
+    /**
+     * checks if a given password is blacklisted
+     * @param pass the password to be checked
+     * @return returns true if the password is blacklisted, false if the password is not on the password blacklist.
+     */
     public boolean isPasswordBlacklisted(String pass) {
         pass = pass.replaceAll("\\s+", "").toLowerCase();
         return !(blacklist.containsValue(pass));
     }
 
-
+    /**
+     * checks if the username is similar to the password using the Levenshtein Edit Distance Formula found in the StringSimilarity class
+     * @param user the username to be checked
+     * @param pass the password to be checked
+     * @return returns true if too similar, false if it is not too similar
+     */
     public boolean isPasswordsimilartoUsername(String user, String pass) {
         pass = pass.replaceAll("\\s+", "");
         return (similar.similarity(user, pass) > 0.7);
